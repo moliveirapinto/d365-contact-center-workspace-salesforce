@@ -49,6 +49,20 @@ flowchart LR
 | 3 | Copilot Studio | [Import and connect the Leasing Agent](docs/3-configure-copilot-studio.md) (or [use your own agent](docs/your-own-agent.md)) |
 | 4 | Test | [Test call and troubleshooting](docs/4-test-and-troubleshoot.md) |
 
+### Don't have a Salesforce org? Get a free Developer Edition
+
+You need a Salesforce org to install into. A free **Developer Edition** org is the right choice (it is also what Microsoft's pre-release package is meant for):
+
+1. Go to **https://developer.salesforce.com/signup** and fill in the form (name, email, company, role, country). Use a real email address you can open: Salesforce sends the activation link there. The **username** you choose must look like an email address but does not have to be a real mailbox; it just has to be unique (for example `yourname.cc@example.com`). Many orgs are created with an `@agentforce.com`-style username; any is fine.
+2. Open the verification e-mail, click **Verify Account** and set your password (and a security question or MFA if asked).
+3. You land in your new org. From now on sign in at **https://login.salesforce.com** with that username (this is the login URL the AI prompt and the Salesforce CLI use for a Developer Edition org).
+4. Open the **App Launcher** (the nine dots at the top left) and check that **Service Console** is listed. It is included in a Developer Edition. This is the app the Contact Center panel goes into.
+5. Install the **Salesforce CLI (`sf`)**: https://developer.salesforce.com/tools/salesforcecli (installer for Windows, macOS and Linux), or `npm install -g @salesforce/cli`. Check with `sf --version`.
+6. Sign in from the terminal once: `sf org login web --alias cc-dev` (your browser opens; you sign in yourself).
+
+Notes: a Developer Edition org is free but for development and testing only, and Salesforce can delete one that stays unused for a long time, so log in now and then. Sample data (Accounts, Contacts, Cases) is included, which is handy for the test call. To test caller matching, save the phone number you will call from in the **Phone** or **Mobile** field of a Contact.
+
+You also need a **Dynamics 365 Contact Center** environment (with a voice channel) and Copilot Studio; those come from Microsoft, not from this repository.
 **Before anything else, get a local copy of this repository** (`git clone https://github.com/moliveirapinto/d365-contact-center-workspace-salesforce.git`, or **Code > Download ZIP** and extract it). The guides and scripts run from its root folder and use the zip files inside it.
 
 **Prerequisites:** a Salesforce Developer Edition, sandbox or scratch org with the Service Console and System Administrator access; a Dynamics 365 Contact Center environment with a working voice channel and workstream; Copilot Studio in the same environment; the Salesforce CLI (`sf`) is recommended.
@@ -103,7 +117,7 @@ HOW TO WORK
 
 PHASE 0 - DISCOVER FIRST, ASK AS LITTLE AS POSSIBLE
 I want MINIMUM interaction. Do NOT interview me. Work out everything you can yourself and use the defaults below; ask me at most ONE short message, and only about items you could not determine.
-1. Salesforce org: run "sf org list". If exactly one org is logged in, use it. If several, ask me which. If none, ask me ONE thing: sandbox or Developer Edition/scratch (login URL) and an alias to use, then run "sf org login web" (I sign in). Production check: detect it yourself (sf org display / the instance URL: a sandbox URL contains ".sandbox." or the login host is test.salesforce.com). If it looks like production, STOP and ask for an explicit "yes, production" (the Microsoft package is a pre-release and not meant for production).
+1. Salesforce org: run "sf org list". If exactly one org is logged in, use it. If several, ask me which. If none, ask me ONE thing: sandbox or Developer Edition/scratch (login URL) and an alias to use, then run "sf org login web" (I sign in). If I say I have NO Salesforce org, point me to the README section "Don't have a Salesforce org? Get a free Developer Edition" (https://developer.salesforce.com/signup), wait until I have created and activated it, and continue with login URL https://login.salesforce.com. If the "sf" CLI is not installed, tell me how to install it (https://developer.salesforce.com/tools/salesforcecli or npm install -g @salesforce/cli) and wait. Production check: detect it yourself (sf org display / the instance URL: a sandbox URL contains ".sandbox." or the login host is test.salesforce.com). If it looks like production, STOP and ask for an explicit "yes, production" (the Microsoft package is a pre-release and not meant for production).
 2. Dynamics 365 environment: after "az login" (I sign in), list the environments I can see (Power Platform API: GET https://api.powerapps.com/providers/Microsoft.PowerApps/environments?api-version=2016-11-01 with a token from "az account get-access-token --resource https://service.powerapps.com", keep those with properties.linkedEnvironmentMetadata.instanceUrl). If one has the table Conversation (msdyn_ocliveworkitem) take it; if several do, ask me which (show names and URLs); if I have only one environment, take it. Do not ask me for its URL or name.
 3. Time zone: take it from this computer (Get-TimeZone): standard offset from UTC in hours, daylight saving rule US for US/Canada zones, EU for European zones, none otherwise, and a short label (ET, CT, MT, PT, GMT, CET, BRT, IST, AEST...). Show it in the preview and use it unless I correct it.
 4. Permission sets Contact_Center_Demo and D365_Contact_Center_Call_Access: assign them to the Salesforce user I signed in as (it is the admin who will test), and to the Salesforce user of the Salesforce connection once it exists. Do not ask me for usernames; at the end offer to add more users by username.
