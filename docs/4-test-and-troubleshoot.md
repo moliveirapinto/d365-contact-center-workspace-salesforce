@@ -32,7 +32,7 @@ Salesforce-only smoke test (no call): create a Case with `D365_Conversation_Id__
 | Contact does not match the caller | Contact needs the caller's number in **Mobile Phone** (or the Account Phone). Business phone is ignored by D365 matching. |
 | Case has no Contact | No Contact matched the last 10 digits; check `Phone_Last10__c` / `Mobile_Last10__c` and that the Salesforce user in the Copilot Studio connection can read Contacts. |
 | No Case at all | Escalate topic: reconnect the Salesforce connection; check the Case *Create record* action has no error. |
-| No call Task, nothing pops | **Contact Center Automation** must be a normal utility item (not hidden in a wrapper); permission set `Contact_Center_Demo` must be assigned (Task field permissions). Hard-refresh with Ctrl+Shift+R. |
+| No call Task, nothing pops | the bridge must be a normal utility item of the Service Console (blank label is fine; a background or hidden item does not run it); permission set `Contact_Center_Demo` must be assigned (Task field permissions). Hard-refresh with Ctrl+Shift+R. |
 | Case does not pop | The journey record must exist when you accept: check the flow `D365CC_Create_Call_From_Case` is active and the Case has `D365_Conversation_Id__c`. |
 | Blank **Transcript** in the pop-up | Step 2.3 (Conversation form fix) not done. |
 | Package install fails *can't remove property layoutPreset* | Remove the older unmanaged `d365EdgeContainer` utility item first (Step 1.1). |

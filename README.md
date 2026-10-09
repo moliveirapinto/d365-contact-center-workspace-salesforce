@@ -4,6 +4,21 @@ Run **Dynamics 365 Contact Center** inside the Salesforce Service Console using 
 
 > **Community sample, not an official Microsoft or Salesforce product.** The Microsoft Contact Center Workspace package used here (`04tak000000aSFVAA2`) is a **pre-release** for Developer Edition, sandbox and scratch orgs. Do not install it in production. Try everything in a sandbox first.
 
+## What the agent sees
+
+When the agent accepts the call in the Contact Center Workspace panel, Salesforce **automatically opens the caller's Contact record and the Case that the IVR created over the phone**. The agent has everything ready before saying hello: who is calling, the case subject and description the virtual agent captured, and the call journey.
+
+![Contact Center Workspace in the Service Console with the Contact and the IVR-created Case popped](docs/images/screen-pop.png)
+
+During and after the call, the Case shows the **Call Journey**: IVR > virtual agent > queue > agent > call ended, with times, sentiment, quality score and the recording.
+
+![Call Journey on the Case](docs/images/call-journey.png)
+
+**Recording & transcript** opens the Dynamics 365 player, transcript and quality evaluation without leaving Salesforce.
+
+![Call recording and transcript pop-up](docs/images/recording-and-transcript.png)
+
+> The utility bar shows only the **Contact Center Workspace** and **History** items. The automation that makes the pop-ups work runs as a utility item with a blank name and no icon, so it takes no visible space.
 ```mermaid
 flowchart LR
   A[Caller] --> B[Copilot Studio Leasing Agent IVR]

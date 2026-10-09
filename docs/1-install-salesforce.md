@@ -47,7 +47,7 @@ The companion adds the automation bridge (`ccSalesforceBridge`), the demo quick 
 
    The portal URL inside is `https://portal.us.contactcenterai.powerplatform.com/experience/agent?orgUrl=<your org URL, URL-encoded>#/`.
 
-2. **Back up your Service Console utility bar first.** `LightningService_UtilityBar` in this repo replaces the utility bar of the standard *Service Console* app, adding the workspace panel (**Contact Center**) and the bridge (**Contact Center Automation**). Retrieve your current one if you want to keep it: `sf project retrieve start -o cc-dev -m FlexiPage:LightningService_UtilityBar`.
+2. **Back up your Service Console utility bar first.** `LightningService_UtilityBar` in this repo replaces the utility bar of the standard *Service Console* app, adding the workspace panel (**Contact Center**) and the automation bridge (a utility item with a blank name and no icon, so it takes no visible space). Retrieve your current one if you want to keep it: `sf project retrieve start -o cc-dev -m FlexiPage:LightningService_UtilityBar`.
 
 3. Deploy:
 
@@ -58,8 +58,9 @@ The companion adds the automation bridge (`ccSalesforceBridge`), the demo quick 
 
 Notes that matter:
 
+- The bridge (`ccSalesforceBridge`) must be a normal utility item. It can be given a blank label and no icon (as shipped), but it cannot be hidden in the *background components* or in an Aura background wrapper: there it does not run, so no call Task is logged and nothing pops.
 - The panel must use layout **compact** (the `embedded` layout has no Copilot panel). The shipped utility bar uses compact, size 1000 x 800, load eagerly.
-- **Contact Center Automation** (`ccSalesforceBridge`) must be a normal, visible utility item. A background wrapper does not run it, and then no call Task is logged and nothing pops.
+
 - The bridge needs the permission set (next step). Its field permissions are on `Task.*`, not `Activity.*`.
 - The Microsoft kit's Case page layout is not shipped (it fails when the Solutions feature is not enabled).
 

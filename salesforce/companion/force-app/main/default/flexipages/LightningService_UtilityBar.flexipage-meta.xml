@@ -115,18 +115,13 @@
           <value>200</value>
         </componentInstanceProperties>
         <componentInstanceProperties>
-          <name>icon</name>
-          <type>decorator</type>
-          <value>automate</value>
-        </componentInstanceProperties>
-        <componentInstanceProperties>
           <name>instanceId</name>
           <value>utility</value>
         </componentInstanceProperties>
         <componentInstanceProperties>
           <name>label</name>
           <type>decorator</type>
-          <value>Contact Center Automation</value>
+          <value>&#160;</value>
         </componentInstanceProperties>
         <componentInstanceProperties>
           <name>placement</name>
