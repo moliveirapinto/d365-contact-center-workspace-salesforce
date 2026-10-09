@@ -1,5 +1,15 @@
 # Step 1 - Install in Salesforce
 
+## Get the files first
+
+Every command in this guide runs **from the root folder of this repository**, so get a local copy first (the folder names below, such as `salesforce/companion`, are inside it):
+
+```
+git clone https://github.com/moliveirapinto/d365-contact-center-workspace-salesforce.git
+cd d365-contact-center-workspace-salesforce
+```
+
+No git? On the repository page choose **Code > Download ZIP**, extract it, and open your terminal **inside the extracted folder** (the one that contains `README.md`, `salesforce` and `dynamics365`). The zip files used below are inside it, so you do not download them separately. If you do keep one elsewhere, pass its full path, for example `--metadata-dir "$env:USERPROFILE\Downloads\D365ContactCenter_CallJourney_Salesforce.zip"`.
 Do the parts **in this order**. Each part depends on the one before it. Every command below uses a Salesforce CLI alias; sign in once with:
 
 ```
@@ -37,16 +47,19 @@ Expect **Succeeded, 48 components, 0 errors**. No CLI? Use Workbench (https://wo
 
 The companion adds the automation bridge (`ccSalesforceBridge`), the demo quick actions and flows, the Task field **Call Journey** (`Call_Journey__c`) that links each logged call Task to its journey, the Contact formula fields `Phone_Last10__c` and `Mobile_Last10__c` used to match callers, the permission set **Contact Center Demo** and the Trusted URLs for the workspace portal and Microsoft sign-in.
 
-1. Put your Dynamics 365 environment URL into the FlexiPages. Replace the placeholder `YOUR-ORG.crm.dynamics.com` with your host (for example `contoso.crm.dynamics.com`):
+1. Put your Dynamics 365 environment host into the FlexiPages. They contain the placeholder `YOUR-ORG.crm.dynamics.com`; replace it with your **full host** (it may be `.crm.dynamics.com`, `.crm3.dynamics.com`, `.crm4.dynamics.com` and so on: copy it from your browser's address bar). Run this **from the root of the cloned repo** (see "Get the files" above):
 
    ```powershell
-   Get-ChildItem salesforce/companion/force-app -Recurse -Filter *.flexipage-meta.xml |
-     ForEach-Object { (Get-Content $_ -Raw).Replace('YOUR-ORG','contoso') | Set-Content $_ -NoNewline }
+   $d365 = 'contoso.crm.dynamics.com'   # <- your Dynamics 365 host, no https://
+   Get-ChildItem salesforce/companion/force-app -Recurse -Filter *.flexipage-meta.xml | ForEach-Object {
+     [IO.File]::WriteAllText($_.FullName, [IO.File]::ReadAllText($_.FullName).Replace('YOUR-ORG.crm.dynamics.com', $d365))
+   }
    ```
-   (bash: `sed -i 's/YOUR-ORG/contoso/g' salesforce/companion/force-app/main/default/flexipages/*.xml`)
+   (bash: `sed -i 's/YOUR-ORG.crm.dynamics.com/contoso.crm.dynamics.com/g' salesforce/companion/force-app/main/default/flexipages/*.xml`)
+
+   If PowerShell says it cannot find `salesforce/companion/force-app`, you are not in the repo folder: run `cd d365-contact-center-workspace-salesforce` (or the folder where you extracted the ZIP) first.
 
    The portal URL inside is `https://portal.us.contactcenterai.powerplatform.com/experience/agent?orgUrl=<your org URL, URL-encoded>#/`.
-
 2. **Back up your Service Console utility bar first.** `LightningService_UtilityBar` in this repo replaces the utility bar of the standard *Service Console* app, adding the workspace panel (**Contact Center**) and the automation bridge (a utility item with a blank name and no icon, so it takes no visible space). Retrieve your current one if you want to keep it: `sf project retrieve start -o cc-dev -m FlexiPage:LightningService_UtilityBar`.
 
 3. Deploy:

@@ -44,10 +44,12 @@ flowchart LR
 
 | Step | Where | Guide |
 |---|---|---|
-| 1 | Salesforce | [Install the Salesforce pieces](docs/1-install-salesforce.md) |
+| 1 | Salesforce | [Install the Salesforce pieces](docs/1-install-salesforce.md) (start with "Get the files") |
 | 2 | Dynamics 365 | [Install the Dynamics 365 solution](docs/2-install-dynamics365.md) (one script) |
 | 3 | Copilot Studio | [Import and connect the Leasing Agent](docs/3-configure-copilot-studio.md) (or [use your own agent](docs/your-own-agent.md)) |
 | 4 | Test | [Test call and troubleshooting](docs/4-test-and-troubleshoot.md) |
+
+**Before anything else, get a local copy of this repository** (`git clone https://github.com/moliveirapinto/d365-contact-center-workspace-salesforce.git`, or **Code > Download ZIP** and extract it). The guides and scripts run from its root folder and use the zip files inside it.
 
 **Prerequisites:** a Salesforce Developer Edition, sandbox or scratch org with the Service Console and System Administrator access; a Dynamics 365 Contact Center environment with a working voice channel and workstream; Copilot Studio in the same environment; the Salesforce CLI (`sf`) is recommended.
 
@@ -117,7 +119,7 @@ PHASE 2 - SALESFORCE (docs/1-install-salesforce.md)
 1. If an unmanaged d365EdgeContainer utility item exists (question 7), back up the utility bar (sf project retrieve start -m FlexiPage:LightningService_UtilityBar), then remove that item. After my "yes".
 2. Install Microsoft's package: sf package install --package 04tak000000aSFVAA2 -o <alias> --wait 20 --publish-wait 5 --security-type AdminsOnly --no-prompt. Verify D365ContactCenter is listed in sf package installed list.
 3. Call journey package: validate with sf project deploy start --metadata-dir <A> --single-package -o <alias> --dry-run --wait 10, expect Succeeded, 48 components, 0 errors; then run it again without --dry-run.
-4. Companion: replace the placeholder YOUR-ORG in salesforce/companion/force-app/main/default/flexipages/*.flexipage-meta.xml with the host of my Dynamics 365 URL (without .crm.dynamics.com), then run in salesforce/companion: sf project deploy start -o <alias> --source-dir force-app --wait 20. Expect Succeeded. Tell me before you deploy: this replaces the Service Console utility bar (LightningService_UtilityBar).
+4. Companion: replace the placeholder YOUR-ORG.crm.dynamics.com in salesforce/companion/force-app/main/default/flexipages/*.flexipage-meta.xml with my FULL Dynamics 365 host exactly as in my URL (for example contoso.crm.dynamics.com, or contoso.crm3.dynamics.com in other regions), writing the files as UTF-8 without BOM, then run in salesforce/companion: sf project deploy start -o <alias> --source-dir force-app --wait 20. Expect Succeeded. Tell me before you deploy: this replaces the Service Console utility bar (LightningService_UtilityBar).
 5. Assign permission sets Contact_Center_Demo and D365_Contact_Center_Call_Access to every user from question 4 (sf org assign permset --name <name> --on-behalf-of <username> -o <alias>). Verify with SELECT Assignee.Username, PermissionSet.Name FROM PermissionSetAssignment WHERE PermissionSet.Name IN ('Contact_Center_Demo','D365_Contact_Center_Call_Access').
 6. Verify: objects Contact_Center_Call__c and D365_Contact_Center_Settings__c; Case fields D365_Conversation_Id__c and D365_Call_Recording__c (Tooling API); flow D365CC_Create_Call_From_Case ACTIVE (FlowDefinition ActiveVersionId not empty); Task field Call_Journey__c; Contact fields Phone_Last10__c and Mobile_Last10__c; Trusted URLs D365_CC_Workspace_Portal, D365_CC_Microsoft_Login and D365_Contact_Center are active (SELECT DeveloperName, IsActive, EndpointUrl FROM CspTrustedSite).
 7. Custom setting (Anonymous Apex, my real values, omit blank lines):
