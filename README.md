@@ -37,7 +37,7 @@ flowchart LR
 | Contact Center Workspace package | Salesforce (Microsoft) | The agent panel (voice, chat, presence, Copilot) in the Service Console utility bar |
 | Companion metadata | Salesforce | Automation bridge: matches the caller to a Contact, logs a call Task, pops the Contact and the Case, links the Task to the journey |
 | Call Journey package | Salesforce | `Contact_Center_Call__c` journey record and timeline, Case recording link, settings |
-| Dynamics 365 solution | Dynamics 365 | Flow that completes the journey after each call, Call Review app, recording pop-up fix |
+| Dynamics 365 solution | Dynamics 365 | Flow that completes the journey after each call, Call Review app, recording pop-up fix; installed by one script |
 | Leasing Agent | Copilot Studio | Voice IVR that finds the Contact by phone and creates the Case |
 
 ## Install in 4 steps
@@ -45,7 +45,7 @@ flowchart LR
 | Step | Where | Guide |
 |---|---|---|
 | 1 | Salesforce | [Install the Salesforce pieces](docs/1-install-salesforce.md) |
-| 2 | Dynamics 365 | [Import the Dynamics 365 solution](docs/2-install-dynamics365.md) |
+| 2 | Dynamics 365 | [Install the Dynamics 365 solution](docs/2-install-dynamics365.md) (one script) |
 | 3 | Copilot Studio | [Import and connect the Leasing Agent](docs/3-configure-copilot-studio.md) (or [use your own agent](docs/your-own-agent.md)) |
 | 4 | Test | [Test call and troubleshooting](docs/4-test-and-troubleshoot.md) |
 
@@ -58,7 +58,8 @@ salesforce/
   call-journey/   D365ContactCenter_CallJourney_Salesforce.zip (+ source)   48 components
   companion/      source for the bridge, quick actions, permission set, Task link, trusted URLs
 dynamics365/      D365ContactCenterSalesforceCallJourney_1_1_1_0.zip (+ web resource source)
-                  Apply-ConversationFormFix.ps1 (form fix script + CSP check)
+                  Install-D365Solution.ps1 (one command: import, connections, flow on, form fix, app roles, Salesforce setting)
+                  Apply-ConversationFormFix.ps1 (form fix + CSP check, also run by the install script)
 copilot-studio/   LeasingAgentSalesforce_1_0_0_0.zip (+ unpacked source and topic YAML)
 docs/             step-by-step guides and screenshots
 ```
@@ -84,7 +85,7 @@ Files (do NOT unzip the zips):
   C) Dynamics 365 solution: dynamics365/D365ContactCenterSalesforceCallJourney_1_1_1_0.zip  (13,614 bytes)
   D) Copilot Studio solution: copilot-studio/LeasingAgentSalesforce_1_0_0_0.zip  (31,760 bytes)
   E) Copilot Studio topic: copilot-studio/source/d365-context-variables-topic.yaml
-  F) Dynamics 365 form fix script: dynamics365/Apply-ConversationFormFix.ps1
+  F) Dynamics 365 install script: dynamics365/Install-D365Solution.ps1 (it calls dynamics365/Apply-ConversationFormFix.ps1 in the same folder)
 Easiest is to clone the repository (git clone, or gh repo clone moliveirapinto/d365-contact-center-workspace-salesforce if it is private) and work from the clone. Read the README and the step guides first. If they and this prompt disagree, follow the repository and tell me.
 
 HOW TO WORK
@@ -122,14 +123,17 @@ PHASE 2 - SALESFORCE (docs/1-install-salesforce.md)
 7. Custom setting (Anonymous Apex, my real values, omit blank lines):
    D365_Contact_Center_Settings__c s = D365_Contact_Center_Settings__c.getOrgDefaults();
    s.Org_Url__c = 'https://contoso.crm.dynamics.com'; s.Time_Zone_Offset__c = -5; s.Daylight_Saving_Rule__c = 'US'; s.Time_Zone_Label__c = 'ET'; upsert s;
-   Leave App_Id__c empty until Phase 3. Verify one org-level row.
+   Leave App_Id__c empty; Phase 3 fills it. Verify one org-level row.
 
-PHASE 3 - DYNAMICS 365 (docs/2-install-dynamics365.md)
-1. https://make.powerapps.com, sign in, select my environment. Solutions > Import solution > file C. Connections: Dataverse (mine), and a NEW Salesforce connection for the SAME Salesforce org as Phase 2 (I sign in with the user from question 4c). Import.
-2. Turn ON the cloud flow "D365 Contact Center - Sync ended calls to Salesforce" (ask first if production). If Turn on is greyed out, set each Connection reference, Save, retry. Confirm the Salesforce connection reference points at the SAME org as Phase 2: a connection to another org makes the flow end "successfully" while calls stay In progress in Salesforce.
-3. Conversation form fix (for the Recording & transcript pop-up): do NOT click through the form designer. Run the script from the repo: powershell -File dynamics365/Apply-ConversationFormFix.ps1 -OrgUrl <D365 URL> (add -Subscription <name> if az has several), first with -WhatIf, show me what it would change, then after my "yes" without -WhatIf. It adds the library new_d365cc_evaluationpanefix.js and the On load handler D365CC.EvaluationPaneFix.onLoad (pass execution context ON) to the Conversation Form, publishes the table, and is safe to run twice. It needs "az login" with an admin account; I sign in myself. If az is not available, fall back to the manual steps in docs/2-install-dynamics365.md section 2.3.
-4. Content security policy: the same script prints whether CSP is enforced for model-driven apps. If it says not enforced, nothing to do. If it is enforced, frame-ancestors must include https://*.lightning.force.com and https://*.my.salesforce.com (and my My Domain host): this setting can only be changed in the Power Platform admin center (environment > Settings > Privacy + Security > Content security policy > App (model-driven) > Configure directives), so show me the exact current list and the two values to add, and guide me click by click. Ask before changing it.5. Share the app Contact Center Call Review with the roles from question 6 (never "everyone"). Open it (Play) and copy the appid= value; re-run the Phase 2 step 7 Apex with s.App_Id__c = '<appid>' and verify.
-
+PHASE 3 - DYNAMICS 365 (docs/2-install-dynamics365.md). ALL SCRIPTED: do not click through make.powerapps.com.
+1. Prerequisites: PowerShell 7 (pwsh) and the Azure CLI. Sign in with "az login" (I sign in myself, MFA included) using an account that is System Administrator or System Customizer in the Contact Center environment. If az reports several subscriptions, remember the one that holds the environment and pass -Subscription "<name>".
+2. PREVIEW (changes nothing): pwsh -File dynamics365/Install-D365Solution.ps1 -OrgUrl <D365 URL> -SalesforceAlias <alias> -ShareWithRoles "<role 1>","<role 2>" -TimeZoneOffset <n> -DaylightSavingRule <US|EU|none> -TimeZoneLabel <label> -WhatIf
+   (use my answers from question 3 and 6; leave out options I did not give; add -Subscription if needed). Show me the output.
+3. If the preview stops with exit code 2 because there is NO Connected Salesforce connection (this is the only step that needs me, it is a one-time OAuth sign-in): give me the link the script prints (https://make.powerapps.com/environments/<id>/connections), tell me to click New connection > Salesforce > Production (or Sandbox to match) > Create and sign in to the SAME Salesforce org as Phase 2 (a connection to another org leaves calls stuck In progress), then wait for me to say "done" and run the preview again. If the script lists several Salesforce connections, ask me which one and pass it with -SalesforceConnection "<name or id>".
+4. After my "yes" (ask first if production), run the same command WITHOUT -WhatIf. It imports the solution (skips when 1.1.1.0 or newer is already there), binds both connection references, turns the sync flow on, applies the Conversation form fix (library new_d365cc_evaluationpanefix.js + On load handler D365CC.EvaluationPaneFix.onLoad), grants the roles access to the Contact Center Call Review app and publishes it, and writes Org_Url__c, App_Id__c and the time zone into the Salesforce custom setting. Safe to run again.
+5. Verify read-only: the solution D365ContactCenterSalesforceCallJourney is installed at 1.1.1.0; the cloud flow "D365 Contact Center - Sync ended calls to Salesforce" is On; SELECT Org_Url__c, App_Id__c, Time_Zone_Offset__c, Daylight_Saving_Rule__c, Time_Zone_Label__c FROM D365_Contact_Center_Settings__c shows exactly one row with my values and the App_Id__c from the script output.
+6. The script also prints whether content security policy is enforced. If it is NOT enforced, nothing more to do. If it IS enforced, frame-ancestors must include https://*.lightning.force.com and https://*.my.salesforce.com (and my My Domain host); that one setting can only be changed in the Power Platform admin center (environment > Settings > Privacy + Security > Content security policy > App (model-driven) > Configure directives), so show me the current list and the values to add, guide me click by click, and ask before changing it.
+7. If a script step fails, show me the exact error and, if it concerns the form or app, offer the manual steps in docs/2-install-dynamics365.md as a fallback.
 PHASE 4 - COPILOT STUDIO (docs/3-configure-copilot-studio.md)
 A) Ready-made agent (question 5): Solutions > Import solution > file D, in the SAME environment, with a Salesforce connection for the Phase 2 org. Open the agent "Leasing Agent" in https://copilotstudio.microsoft.com > Topics > Escalate and select my Salesforce connection on both Salesforce actions (Get records, Create record). Confirm topic "D365 Context Variables" exists and Global.msdyn_ConversationId has "External sources can set values" ON. Ask for my explicit "yes, publish" if live callers use it, then publish.
    Then, in Dynamics 365 Customer Service admin center > Workstreams > my Voice workstream > bot/agent setting, select Leasing Agent (guide me click by click if you cannot do it). This changes live call handling: ask first.
@@ -160,7 +164,7 @@ START with PHASE 0.
 
 ## What the prompt cannot do
 
-- Sign in or approve MFA for you.
+- Sign in or approve MFA for you, including the one-time Salesforce sign-in that creates the Salesforce connection used by the sync flow (the only manual step in Step 2).
 - Create a Contact Center voice channel, phone number or workstream, or give your user a Contact Center license.
 - Bind the Leasing Agent to the voice workstream in every tenant without your help; that is done in the Customer Service admin center.
 

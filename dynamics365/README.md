@@ -3,6 +3,7 @@
 | File | Use it for |
 |---|---|
 | **`D365ContactCenterSalesforceCallJourney_1_1_1_0.zip`** | **Installing.** Import it in make.powerapps.com → Solutions → Import. See [Step 2](../docs/2-install-dynamics365.md). Unmanaged solution. |
+| `Install-D365Solution.ps1` | **Installing, automated.** One command: import, connections, flow on, form fix, app roles, Salesforce custom setting. See [Step 2](../docs/2-install-dynamics365.md). |
 | `Apply-ConversationFormFix.ps1` | Script that applies the Conversation form fix (library + On load handler, publish) and checks the content security policy. See [Step 2.3](../docs/2-install-dynamics365.md). |
 | `webresource-source/new_d365cc_evaluationpanefix.js` | Readable copy of the Conversation form fix: Evaluation Details pane + transcript in the Salesforce pop-up (same file that is inside the solution). |
 
