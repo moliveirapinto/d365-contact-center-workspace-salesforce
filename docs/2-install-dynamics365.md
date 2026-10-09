@@ -19,6 +19,16 @@ If you later change the Salesforce connection, edit the **connection reference**
 
 ## 2.3 Conversation form fix (call recording pop-up only)
 
+**Automated (recommended):** after importing the solution run, with `az login` done as an admin:
+
+```
+powershell -File dynamics365/Apply-ConversationFormFix.ps1 -OrgUrl https://contoso.crm.dynamics.com -WhatIf   # preview
+powershell -File dynamics365/Apply-ConversationFormFix.ps1 -OrgUrl https://contoso.crm.dynamics.com           # apply
+```
+
+It adds the library and the On load handler to the Conversation Form, publishes, is safe to run twice, and reports whether CSP enforcement needs the `frame-ancestors` addition below. The manual steps follow in case you prefer the designer.
+
+
 Needed so the *Recording & transcript* pop-up in Salesforce shows the transcript and the evaluation pane (D365 loads them through `window.top.Xrm`, which browsers block when D365 is embedded cross-site).
 
 1. Tables > **Conversation** > Forms > **Conversation Form** (Main) > Form libraries > Add library > `new_d365cc_evaluationpanefix` > Add.
