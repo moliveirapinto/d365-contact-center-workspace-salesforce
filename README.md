@@ -89,6 +89,7 @@ HOW TO WORK
 - Use the tools you have (shell, Salesforce CLI "sf", browser, file download). If you cannot operate a browser, switch to GUIDE MODE: ONE step at a time with exact click paths, wait for me to say "done", and verify what I report before moving on.
 - Never guess. If a screen, value or count differs from this prompt, STOP and tell me exactly what you see.
 - Retry a failed action at most twice, then stop and show me the exact error.
+- The automation bridge (component ccSalesforceBridge) must stay a NORMAL utility item of the Service Console utility bar (blank label and no icon are fine, as shipped). Never move it to the utility bar background components, never wrap it in a background Aura component, and never remove it: it does not run there, so no call Task is logged and the Contact and Case do not pop up when the agent accepts a call.
 - Only do what is listed here. Do not delete or change any other record, field, flow, topic, form, utility bar or solution. Never touch a Salesforce org, Power Platform environment or Copilot Studio agent other than the ones I name.
 - Sign-in: I sign in myself, including MFA. Tell me when you need it, then wait. Never ask me to paste passwords or tokens, never store any.
 - Anything that can affect LIVE calls (publishing the Copilot Studio agent, turning on the sync flow in a production environment, replacing a utility bar, deploying to production) needs my explicit "yes" first. Say what will change.
