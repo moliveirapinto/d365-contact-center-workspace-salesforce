@@ -19,6 +19,19 @@ private class ContactCenterServiceTest {
     }
 
     @IsTest
+    static void callWithoutContactStillLogsTaskOnCase() {
+        Case c = new Case(Subject = 'IVR case', Origin = 'Phone');
+        c.put('D365_Conversation_Id__c', 'conv-no-contact-1');
+        insert c;
+        ContactCenterService.CaseMatch m = ContactCenterService.findCase('conv-no-contact-1', null);
+        Assert.areEqual(c.Id, m.caseId);
+        Assert.isNull(ContactCenterService.findCase('unknown-conv', null));
+        ContactCenterService.Interaction i = ContactCenterService.startInteraction(null, 'conv-no-contact-1', null, 'Voice', null);
+        Assert.areEqual(c.Id, [SELECT WhatId FROM Task WHERE Id = :i.taskId].WhatId);
+        Assert.areEqual(c.Id, i.caseId);
+    }
+
+    @IsTest
     static void interactionLifecycle() {
         Contact pat = [SELECT Id FROM Contact WHERE LastName = 'Caller'];
         ContactCenterService.Interaction i = ContactCenterService.startInteraction(

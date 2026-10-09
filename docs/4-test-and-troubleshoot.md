@@ -26,12 +26,17 @@ Salesforce-only smoke test (no call): create a Case with `D365_Conversation_Id__
 
 ## Troubleshooting
 
+**Quick check:** run `pwsh -File salesforce/Test-Install.ps1 -Alias <your org alias> -Username <agent username>` (read-only). It checks the package, components, permission sets, fields, utility bar, trusted URLs and whether a call Task was ever logged, and prints a FIX line for each problem.
+
+
 | Symptom | Cause / fix |
 |---|---|
 | Journey stays **In progress** after the call ended | The sync flow's Salesforce connection points to another org, or the connection reference is unbound. Fix the connection reference (Step 2.2). Flow runs show *Succeeded* with an ending step `No_Salesforce_case_for_this_call`; open the run and look at the `Update_Salesforce_call` action for the Salesforce error. |
 | Contact does not match the caller | Contact needs the caller's number in **Mobile Phone** (or the Account Phone). Business phone is ignored by D365 matching. |
+| Contact does not pop but the Case does | Expected when the caller's number is on no Contact (Phone or Mobile): the call Task is logged on the Case and the Case opens. Save the number on a Contact to also get the Contact pop. |
 | Case has no Contact | No Contact matched the last 10 digits; check `Phone_Last10__c` / `Mobile_Last10__c` and that the Salesforce user in the Copilot Studio connection can read Contacts. |
 | No Case at all | Escalate topic: reconnect the Salesforce connection; check the Case *Create record* action has no error. |
+| No call Task, nothing pops (older install) | The first version stopped when no Contact matched the caller, so nothing was logged or popped even though the IVR Case existed. Redeploy the companion (Step 1.3) to get the fix. Otherwise: |
 | No call Task, nothing pops | the bridge must be a normal utility item of the Service Console (blank label is fine; a background or hidden item does not run it); permission set `Contact_Center_Demo` must be assigned (Task field permissions). Hard-refresh with Ctrl+Shift+R. |
 | Case does not pop | The journey record must exist when you accept: check the flow `D365CC_Create_Call_From_Case` is active and the Case has `D365_Conversation_Id__c`. |
 | Blank **Transcript** in the pop-up | Step 2.3 (Conversation form fix) not done. |

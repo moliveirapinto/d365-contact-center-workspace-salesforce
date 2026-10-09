@@ -6,7 +6,7 @@ Run **Dynamics 365 Contact Center** inside the Salesforce Service Console using 
 
 ## What the agent sees
 
-When the agent accepts the call in the Contact Center Workspace panel, Salesforce **automatically opens the caller's Contact record and the Case that the IVR created over the phone**. The agent has everything ready before saying hello: who is calling, the case subject and description the virtual agent captured, and the call journey.
+When the agent accepts the call in the Contact Center Workspace panel, Salesforce **automatically opens the caller's Contact record and the Case that the IVR created over the phone** (if no Contact matches the caller's number, the Case still opens). The agent has everything ready before saying hello: who is calling, the case subject and description the virtual agent captured, and the call journey.
 
 ![Contact Center Workspace in the Service Console with the Contact and the IVR-created Case popped](docs/images/screen-pop.png)
 
@@ -58,6 +58,7 @@ flowchart LR
 ```
 salesforce/
   call-journey/   D365ContactCenter_CallJourney_Salesforce.zip (+ source)   48 components
+  Test-Install.ps1  read-only health check of the Salesforce side
   companion/      source for the bridge, quick actions, permission set, Task link, trusted URLs
 dynamics365/      D365ContactCenterSalesforceCallJourney_1_1_1_0.zip (+ web resource source)
                   Install-D365Solution.ps1 (one command: import, connections, flow on, form fix, app roles, Salesforce setting)
@@ -142,7 +143,7 @@ A) Ready-made agent (Phase 0 item 6): Solutions > Import solution > file D, in t
    Then, in Dynamics 365 Customer Service admin center > Workstreams > my Voice workstream > bot/agent setting, select Leasing Agent (guide me click by click if you cannot do it). This changes live call handling: ask first.
 B) Existing agent (only if I said I have one): follow docs/your-own-agent.md exactly (conversation id topic with file E, Contact lookup by Phone_Last10__c / Mobile_Last10__c, Case with ContactId, AccountId and D365_Conversation_Id__c). If the agent creates NO Case, STOP and ask me. Publish only after my "yes".
 
-PHASE 5 - END-TO-END TEST (docs/4-test-and-troubleshoot.md)
+PHASE 5 - END-TO-END TEST (first run read-only: pwsh -File salesforce/Test-Install.ps1 -Alias <alias> -Username <agent>; fix every FAIL it reports) (docs/4-test-and-troubleshoot.md)
 Ask me to: hard-refresh Salesforce (Ctrl+Shift+R), open the Service Console, sign in to the Contact Center panel (pop-up, MFA is mine) and set presence Available. Then call my Contact Center number from a phone number saved on a Salesforce Contact (Phone or Mobile), ask the IVR for a person, accept, talk briefly and end the call. Check, read-only:
 - A new Case with the Contact attached and D365_Conversation_Id__c filled: SELECT CaseNumber, ContactId, D365_Conversation_Id__c FROM Case ORDER BY CreatedDate DESC LIMIT 5
 - A Contact_Center_Call__c linked to the Case: SELECT Id, Name, Status__c, Case__c FROM Contact_Center_Call__c ORDER BY CreatedDate DESC LIMIT 5

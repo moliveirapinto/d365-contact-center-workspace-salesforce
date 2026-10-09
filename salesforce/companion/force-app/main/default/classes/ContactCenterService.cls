@@ -17,6 +17,35 @@ public with sharing class ContactCenterService {
         @AuraEnabled public Id caseId;
     }
 
+    public class CaseMatch {
+        @AuraEnabled public Id caseId;
+        @AuraEnabled public Id contactId;
+        @AuraEnabled public String contactName;
+    }
+
+    /**
+     * Finds the Case the IVR created for this conversation (D365_Conversation_Id__c), so the agent
+     * gets the Case even when the caller's phone matches no Contact.
+     */
+    @AuraEnabled
+    public static CaseMatch findCase(String conversationId, String liveWorkItemId) {
+        List<String> ids = new List<String>();
+        for (String s : new List<String>{ liveWorkItemId, conversationId }) {
+            if (String.isNotBlank(s)) { ids.add(s); }
+        }
+        if (ids.isEmpty() || !Schema.getGlobalDescribe().get('Case').getDescribe().fields.getMap().containsKey('D365_Conversation_Id__c')) {
+            return null;
+        }
+        List<Case> cases = Database.query('SELECT Id, ContactId, Contact.Name FROM Case WHERE D365_Conversation_Id__c IN :ids ORDER BY CreatedDate DESC LIMIT 1');
+        if (cases.isEmpty()) {
+            return null;
+        }
+        CaseMatch m = new CaseMatch();
+        m.caseId = cases[0].Id;
+        m.contactId = cases[0].ContactId;
+        m.contactName = cases[0].Contact?.Name;
+        return m;
+    }
     @AuraEnabled
     public static CallerLookup.CallerMatch findCaller(String phone, String name) {
         CallerLookup.CallerMatch match = CallerLookup.findByPhone(phone);
@@ -122,6 +151,10 @@ public with sharing class ContactCenterService {
                 Sync_To_Workspace__c = false
             );
             linkJourney(t, contactId, liveWorkItemId, conversationId);
+            if (t.WhatId == null) {
+                CaseMatch cm = findCase(conversationId, liveWorkItemId);
+                if (cm != null) { t.WhatId = cm.caseId; }
+            }
             insert t;
             result.created = true;
         }

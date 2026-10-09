@@ -11,6 +11,7 @@ import HOST_EVENT from '@salesforce/messageChannel/D365EdgeHostEvent__c';
 import COMMAND from '@salesforce/messageChannel/ContactCenterCommand__c';
 import RESULT from '@salesforce/messageChannel/ContactCenterResult__c';
 import findCaller from '@salesforce/apex/ContactCenterService.findCaller';
+import findCase from '@salesforce/apex/ContactCenterService.findCase';
 import startInteraction from '@salesforce/apex/ContactCenterService.startInteraction';
 import updateInteraction from '@salesforce/apex/ContactCenterService.updateInteraction';
 import completeInteraction from '@salesforce/apex/ContactCenterService.completeInteraction';
@@ -755,10 +756,7 @@ export default class CcSalesforceBridge extends NavigationMixin(LightningElement
         }
         this._log(`identify phone=${phone ? 'yes' : 'no'} name=${name ? 'yes' : 'no'} match=${match ? match.contactId : 'none'} channel=${conv.channel} queue=${conv.queue}`);
         if (!match) {
-            if (!conv.unmatchedToast) {
-                conv.unmatchedToast = true;
-                this._toast('Conversation accepted', 'No Salesforce contact matches this customer yet.', 'warning');
-            }
+            await this._identifyByCase(conv);
             return;
         }
         conv.contactId = match.contactId;
@@ -795,25 +793,63 @@ export default class CcSalesforceBridge extends NavigationMixin(LightningElement
         this._screenPop(conv, match.contactId, conv.caseId);
     }
 
+    // No Contact matches the caller: still log the call and open the Case the IVR created.
+    async _identifyByCase(conv) {
+        let found;
+        try {
+            found = await findCase({ conversationId: conv.conversationId, liveWorkItemId: conv.liveWorkItemId || null });
+        } catch (e) {
+            this._log(`findCase: ${errorText(e)}`);
+        }
+        if (!found || !found.caseId) {
+            if (!conv.unmatchedToast) {
+                conv.unmatchedToast = true;
+                this._toast('Conversation accepted', 'No Salesforce contact or case matches this customer yet.', 'warning');
+            }
+            return;
+        }
+        conv.caseId = found.caseId;
+        if (found.contactId) conv.contactId = found.contactId;
+        try {
+            const interaction = await startInteraction({
+                contactId: found.contactId || null,
+                conversationId: conv.conversationId,
+                liveWorkItemId: conv.liveWorkItemId || null,
+                channel: conv.channel || 'Chat',
+                queueName: conv.queue || null
+            });
+            conv.taskId = interaction.taskId;
+            const changes = {};
+            if (conv.sla) changes.slaStatus = conv.sla;
+            if (conv.subject) changes.note = `Workspace subject: ${conv.subject}`;
+            if (Object.keys(changes).length) await updateInteraction({ taskId: conv.taskId, changes });
+        } catch (e) {
+            this._toast('Could not log the interaction', errorText(e), 'error');
+        }
+        const kind = conv.channel === 'Voice' ? 'Call' : 'Chat';
+        this._toast(`${kind} accepted`, 'No contact matches the caller; opening the case created by the virtual agent.', 'success');
+        this._screenPop(conv, found.contactId, found.caseId);
+    }
     _screenPop(conv, contactId, caseId) {
-        if (!this.autoScreenPop || !contactId) return;
+        if (!this.autoScreenPop || (!contactId && !caseId)) return;
         // Pop once per conversation per browser tab. Lightning keeps the previous record page
         // (and its live workspace iframe) cached, so the bridge on the newly opened page must
         // not pop again when the agent later moves to another record.
         const key = `ccBridge.popped.${conv.conversationId}`;
         try {
             if (window.sessionStorage.getItem(key)) return;
-            window.sessionStorage.setItem(key, contactId);
+            window.sessionStorage.setItem(key, contactId || caseId);
         } catch (e) {
             if (conv.popped) return;
         }
         conv.popped = true;
-        if (!this.isUtility && this.recordId === contactId) return;
-        this._log(`screen pop ${contactId}`);
-        this[NavigationMixin.Navigate]({
-            type: 'standard__recordPage',
-            attributes: { recordId: contactId, objectApiName: 'Contact', actionName: 'view' }
-        });
+        if (contactId && (this.isUtility || this.recordId !== contactId)) {
+            this._log(`screen pop ${contactId}`);
+            this[NavigationMixin.Navigate]({
+                type: 'standard__recordPage',
+                attributes: { recordId: contactId, objectApiName: 'Contact', actionName: 'view' }
+            });
+        }
         if (caseId) {
             this._log(`screen pop case ${caseId}`);
             this[NavigationMixin.Navigate]({
