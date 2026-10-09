@@ -1,0 +1,8 @@
+<botcomponent_connectionreferenceset>
+  <botcomponent_connectionreference botcomponentid.schemaname="maulabs_LeasingAgent.action.Salesforce-Getrecords" connectionreferenceid.connectionreferencelogicalname="maulabs_LeasingAgent.shared_salesforce.5b55f9af76f04752b4d880676badaa93">
+    <iscustomizable>1</iscustomizable>
+  </botcomponent_connectionreference>
+  <botcomponent_connectionreference botcomponentid.schemaname="maulabs_LeasingAgent.action.Salesforce-MCPserverforSalesforce" connectionreferenceid.connectionreferencelogicalname="maulabs_LeasingAgent.shared_salesforce.5b55f9af76f04752b4d880676badaa93">
+    <iscustomizable>1</iscustomizable>
+  </botcomponent_connectionreference>
+</botcomponent_connectionreferenceset>

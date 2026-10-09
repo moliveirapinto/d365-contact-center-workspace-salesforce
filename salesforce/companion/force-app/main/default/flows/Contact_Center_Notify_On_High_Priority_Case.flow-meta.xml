@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Notify_Workspace</name>
+        <label>Notify workspace</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>ContactCenterService</actionName>
+        <actionType>apex</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters><name>operation</name><value><stringValue>addNotification</stringValue></value></inputParameters>
+        <inputParameters><name>contactId</name><value><elementReference>$Record.ContactId</elementReference></value></inputParameters>
+        <inputParameters><name>message</name><value><elementReference>CaseMessage</elementReference></value></inputParameters>
+        <inputParameters><name>level</name><value><numberValue>2</numberValue></value></inputParameters>
+        <nameSegment>ContactCenterService</nameSegment>
+    </actionCalls>
+    <apiVersion>62.0</apiVersion>
+    <description>When a high-priority case is opened for a customer in a live conversation, sends a warning to the representative&apos;s Contact Center workspace.</description>
+    <environments>Default</environments>
+    <interviewLabel>Contact Center - Notify on high-priority case {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Contact Center - Notify on high-priority case</label>
+    <processMetadataValues><name>BuilderType</name><value><stringValue>LightningFlowBuilder</stringValue></value></processMetadataValues>
+    <processMetadataValues><name>CanvasMode</name><value><stringValue>AUTO_LAYOUT_CANVAS</stringValue></value></processMetadataValues>
+    <processMetadataValues><name>OriginBuilderType</name><value><stringValue>LightningFlowBuilder</stringValue></value></processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector><targetReference>Notify_Workspace</targetReference></connector>
+        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+        <filterLogic>and</filterLogic>
+        <filters><field>Priority</field><operator>EqualTo</operator><value><stringValue>High</stringValue></value></filters>
+        <filters><field>ContactId</field><operator>IsNull</operator><value><booleanValue>false</booleanValue></value></filters>
+        <object>Case</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <textTemplates><name>CaseMessage</name><isViewedAsPlainText>true</isViewedAsPlainText><text>Salesforce: high-priority case {!$Record.CaseNumber} opened - {!$Record.Subject}</text></textTemplates>
+</Flow>

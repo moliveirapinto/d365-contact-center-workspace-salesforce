@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <isExposed>false</isExposed>
+    <masterLabel>Call Recording Modal</masterLabel>
+    <description>Modal that embeds the Dynamics 365 Contact Center conversation record (recording, transcript, summary).</description>
+</LightningComponentBundle>

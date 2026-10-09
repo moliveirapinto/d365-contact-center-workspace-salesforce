@@ -1,0 +1,10 @@
+<botcomponent schemaname="maulabs_LeasingAgent.action.Salesforce-MCPserverforSalesforce">
+  <componenttype>9</componenttype>
+  <iscustomizable>0</iscustomizable>
+  <name>Salesforce - MCP server for Salesforce</name>
+  <parentbotid>
+    <schemaname>maulabs_LeasingAgent</schemaname>
+  </parentbotid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</botcomponent>

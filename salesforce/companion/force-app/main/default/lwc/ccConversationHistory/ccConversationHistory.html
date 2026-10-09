@@ -1,0 +1,20 @@
+<template>
+    <div class="slds-p-around_x-small">
+        <template lwc:if={loading}>
+            <lightning-spinner alternative-text="Loading conversation history" size="small"></lightning-spinner>
+        </template>
+        <template lwc:elseif={error}>
+            <div class="slds-text-color_error slds-m-bottom_small">{error}</div>
+            <lightning-button label="Try again" onclick={load}></lightning-button>
+        </template>
+        <template lwc:else>
+            <p class="slds-text-title_caps slds-m-bottom_xx-small">{customerTitle}</p>
+            <template lwc:if={hasCustomer}>
+                <lightning-datatable key-field="key" data={customer} columns={columns} hide-checkbox-column></lightning-datatable>
+            </template>
+            <template lwc:else>
+                <p class="slds-text-color_weak">No contact center conversations found for this customer.</p>
+            </template>
+        </template>
+    </div>
+</template>

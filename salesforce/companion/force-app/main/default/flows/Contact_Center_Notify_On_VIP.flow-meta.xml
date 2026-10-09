@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Notify_Workspace</name>
+        <label>Notify workspace</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>ContactCenterService</actionName>
+        <actionType>apex</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters><name>operation</name><value><stringValue>addNotification</stringValue></value></inputParameters>
+        <inputParameters><name>contactId</name><value><elementReference>$Record.Id</elementReference></value></inputParameters>
+        <inputParameters><name>message</name><value><elementReference>VipMessage</elementReference></value></inputParameters>
+        <inputParameters><name>level</name><value><numberValue>1</numberValue></value></inputParameters>
+        <nameSegment>ContactCenterService</nameSegment>
+    </actionCalls>
+    <apiVersion>62.0</apiVersion>
+    <description>When a contact is marked VIP during a live conversation, sends a notification to the representative&apos;s Contact Center workspace.</description>
+    <environments>Default</environments>
+    <interviewLabel>Contact Center - Notify on VIP {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Contact Center - Notify on VIP</label>
+    <processMetadataValues><name>BuilderType</name><value><stringValue>LightningFlowBuilder</stringValue></value></processMetadataValues>
+    <processMetadataValues><name>CanvasMode</name><value><stringValue>AUTO_LAYOUT_CANVAS</stringValue></value></processMetadataValues>
+    <processMetadataValues><name>OriginBuilderType</name><value><stringValue>LightningFlowBuilder</stringValue></value></processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector><targetReference>Notify_Workspace</targetReference></connector>
+        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+        <filterLogic>and</filterLogic>
+        <filters><field>VIP__c</field><operator>EqualTo</operator><value><booleanValue>true</booleanValue></value></filters>
+        <filters><field>Active_Conversation_Id__c</field><operator>IsNull</operator><value><booleanValue>false</booleanValue></value></filters>
+        <object>Contact</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <textTemplates><name>VipMessage</name><isViewedAsPlainText>true</isViewedAsPlainText><text>Salesforce: {!$Record.FirstName} {!$Record.LastName} is now a VIP customer. Offer priority service.</text></textTemplates>
+</Flow>

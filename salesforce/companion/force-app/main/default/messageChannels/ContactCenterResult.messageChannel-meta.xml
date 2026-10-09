@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningMessageChannel xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Contact Center demo ContactCenterResult</description>
+    <isExposed>true</isExposed>
+    <lightningMessageFields>
+        <fieldName>requestId</fieldName>
+    </lightningMessageFields>
+    <lightningMessageFields>
+        <fieldName>operation</fieldName>
+    </lightningMessageFields>
+    <lightningMessageFields>
+        <fieldName>success</fieldName>
+    </lightningMessageFields>
+    <lightningMessageFields>
+        <fieldName>data</fieldName>
+    </lightningMessageFields>
+    <lightningMessageFields>
+        <fieldName>error</fieldName>
+    </lightningMessageFields>
+    <masterLabel>ContactCenterResult</masterLabel>
+</LightningMessageChannel>
+

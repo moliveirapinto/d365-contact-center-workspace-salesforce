@@ -1,0 +1,7 @@
+kind: IvrBotSettings
+latencySettings:
+  latencyMessage: Hmm...Hold on a moment. I need to give it some thought.
+
+voiceFont:
+  voiceName: marin
+  speakingSpeed: 1

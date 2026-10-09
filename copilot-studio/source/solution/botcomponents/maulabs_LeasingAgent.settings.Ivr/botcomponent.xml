@@ -1,0 +1,9 @@
+<botcomponent schemaname="maulabs_LeasingAgent.settings.Ivr">
+  <componenttype>18</componenttype>
+  <iscustomizable>1</iscustomizable>
+  <parentbotid>
+    <schemaname>maulabs_LeasingAgent</schemaname>
+  </parentbotid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</botcomponent>

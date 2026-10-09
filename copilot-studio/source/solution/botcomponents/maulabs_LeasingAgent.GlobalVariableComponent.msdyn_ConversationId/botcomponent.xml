@@ -1,0 +1,10 @@
+<botcomponent schemaname="maulabs_LeasingAgent.GlobalVariableComponent.msdyn_ConversationId">
+  <componenttype>12</componenttype>
+  <iscustomizable>1</iscustomizable>
+  <name>msdyn_ConversationId</name>
+  <parentbotid>
+    <schemaname>maulabs_LeasingAgent</schemaname>
+  </parentbotid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</botcomponent>

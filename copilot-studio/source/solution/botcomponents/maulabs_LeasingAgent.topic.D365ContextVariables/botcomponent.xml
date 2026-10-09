@@ -1,0 +1,11 @@
+<botcomponent schemaname="maulabs_LeasingAgent.topic.D365ContextVariables">
+  <componenttype>9</componenttype>
+  <description>Declares the type of Global.msdyn_ConversationId set by Dynamics 365 Contact Center. Redirect-only; nothing redirects here, so it never runs.</description>
+  <iscustomizable>1</iscustomizable>
+  <name>D365 context variables (declares types - never triggered)</name>
+  <parentbotid>
+    <schemaname>maulabs_LeasingAgent</schemaname>
+  </parentbotid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</botcomponent>

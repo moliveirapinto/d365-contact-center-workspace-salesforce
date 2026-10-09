@@ -1,0 +1,11 @@
+<botcomponent schemaname="maulabs_LeasingAgent.topic.Silence">
+  <componenttype>9</componenttype>
+  <description>Triggered when a duration has passed without the user providing any speech or DTMF input. To use this trigger, silence detection must be turning on in bot settings.</description>
+  <iscustomizable>1</iscustomizable>
+  <name>Silence detection</name>
+  <parentbotid>
+    <schemaname>maulabs_LeasingAgent</schemaname>
+  </parentbotid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</botcomponent>

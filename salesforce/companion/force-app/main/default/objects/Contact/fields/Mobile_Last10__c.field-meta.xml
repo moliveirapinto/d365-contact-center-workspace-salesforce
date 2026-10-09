@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Mobile_Last10__c</fullName>
+    <label>Mobile Phone (last 10 digits)</label>
+    <description>Last 10 digits of MobilePhone with formatting removed. Lets Copilot Studio match a caller's phone number to this Contact.</description>
+    <formula>RIGHT(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(SUBSTITUTE(MobilePhone, " ", ""), "-", ""), "(", ""), ")", ""), "+", ""), ".", ""), 10)</formula>
+    <formulaTreatBlanksAs>BlankAsBlank</formulaTreatBlanksAs>
+    <type>Text</type>
+    <required>false</required>
+    <externalId>false</externalId>
+</CustomField>

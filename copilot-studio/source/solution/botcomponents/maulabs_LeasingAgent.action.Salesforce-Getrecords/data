@@ -1,0 +1,22 @@
+kind: TaskDialog
+modelDisplayName: Get records
+modelDescription: This operation gets records of a certain Salesforce object type like 'Leads'.
+outputs:
+  - propertyName: Response
+
+action:
+  kind: InvokeConnectorTaskAction
+  connectionReference: maulabs_LeasingAgent.shared_salesforce.5b55f9af76f04752b4d880676badaa93
+  connectionProperties:
+    mode: Maker
+
+  operationId: GetItems
+  dynamicOutputSchema:
+    kind: Record
+    properties:
+      value:
+        displayName: value
+        type:
+          kind: Table
+
+outputMode: All

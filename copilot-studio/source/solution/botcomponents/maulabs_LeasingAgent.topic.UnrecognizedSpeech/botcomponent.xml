@@ -1,0 +1,11 @@
+<botcomponent schemaname="maulabs_LeasingAgent.topic.UnrecognizedSpeech">
+  <componenttype>9</componenttype>
+  <description>Triggered when the user's speech input cannot be recognized.</description>
+  <iscustomizable>1</iscustomizable>
+  <name>Speech unrecognized</name>
+  <parentbotid>
+    <schemaname>maulabs_LeasingAgent</schemaname>
+  </parentbotid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</botcomponent>

@@ -1,0 +1,11 @@
+<botcomponent schemaname="maulabs_LeasingAgent.topic.AnsweringMachineDetection">
+  <componenttype>9</componenttype>
+  <description>This will be triggered when agent detects that it is interacting with an Answering Machine.</description>
+  <iscustomizable>1</iscustomizable>
+  <name>Answering Machine Detection</name>
+  <parentbotid>
+    <schemaname>maulabs_LeasingAgent</schemaname>
+  </parentbotid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</botcomponent>

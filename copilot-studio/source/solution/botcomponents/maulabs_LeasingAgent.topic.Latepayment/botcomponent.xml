@@ -1,0 +1,10 @@
+<botcomponent schemaname="maulabs_LeasingAgent.topic.Latepayment">
+  <componenttype>9</componenttype>
+  <iscustomizable>1</iscustomizable>
+  <name>Late payment</name>
+  <parentbotid>
+    <schemaname>maulabs_LeasingAgent</schemaname>
+  </parentbotid>
+  <statecode>1</statecode>
+  <statuscode>2</statuscode>
+</botcomponent>

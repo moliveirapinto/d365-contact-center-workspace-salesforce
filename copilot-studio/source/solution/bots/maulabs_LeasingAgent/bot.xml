@@ -1,0 +1,14 @@
+<bot schemaname="maulabs_LeasingAgent">
+  <authenticationconfiguration>{
+  "$kind": "BotAuthenticationConfiguration"
+}</authenticationconfiguration>
+  <authenticationmode>1</authenticationmode>
+  <authenticationtrigger>0</authenticationtrigger>
+  <iscustomizable>1</iscustomizable>
+  <language>1033</language>
+  <name>Leasing Agent</name>
+  <runtimeprovider>0</runtimeprovider>
+  <supportedlanguages>[-1,1046,21514,-1]</supportedlanguages>
+  <template>default-2.1.0</template>
+  <timezoneruleversionnumber>4</timezoneruleversionnumber>
+</bot>

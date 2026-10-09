@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <description>When the Contact Center workspace reports negative customer sentiment, opens a high-priority follow-up case. The case then notifies the representative through the high-priority case flow.</description>
+    <environments>Default</environments>
+    <interviewLabel>Contact Center - Escalate negative sentiment {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Contact Center - Escalate negative sentiment</label>
+    <processMetadataValues><name>BuilderType</name><value><stringValue>LightningFlowBuilder</stringValue></value></processMetadataValues>
+    <processMetadataValues><name>CanvasMode</name><value><stringValue>AUTO_LAYOUT_CANVAS</stringValue></value></processMetadataValues>
+    <processMetadataValues><name>OriginBuilderType</name><value><stringValue>LightningFlowBuilder</stringValue></value></processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordCreates>
+        <name>Create_Follow_Up_Case</name>
+        <label>Create follow-up case</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputAssignments><field>ContactId</field><value><elementReference>$Record.WhoId</elementReference></value></inputAssignments>
+        <inputAssignments><field>Description</field><value><stringValue>Opened automatically when the Contact Center workspace reported negative customer sentiment.</stringValue></value></inputAssignments>
+        <inputAssignments><field>Priority</field><value><stringValue>High</stringValue></value></inputAssignments>
+        <inputAssignments><field>Status</field><value><stringValue>New</stringValue></value></inputAssignments>
+        <inputAssignments><field>Subject</field><value><stringValue>Customer frustrated during contact center conversation</stringValue></value></inputAssignments>
+        <object>Case</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector><targetReference>Create_Follow_Up_Case</targetReference></connector>
+        <doesRequireRecordChangedToMeetCriteria>true</doesRequireRecordChangedToMeetCriteria>
+        <filterFormula>AND(ISPICKVAL({!$Record.Sentiment__c}, &quot;Negative&quot;), LEFT({!$Record.WhoId}, 3) = &quot;003&quot;, NOT(ISBLANK({!$Record.Conversation_Id__c})))</filterFormula>
+        <object>Task</object>
+        <recordTriggerType>Update</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

@@ -1,0 +1,12 @@
+kind: TaskDialog
+modelDisplayName: MCP server for Salesforce
+modelDescription: MCP server for Salesforce
+action:
+  kind: InvokeExternalAgentTaskAction
+  connectionReference: maulabs_LeasingAgent.shared_salesforce.5b55f9af76f04752b4d880676badaa93
+  connectionProperties:
+    mode: Maker
+
+  operationDetails:
+    kind: ModelContextProtocolMetadata
+    operationId: mcp_SalesforceManagement

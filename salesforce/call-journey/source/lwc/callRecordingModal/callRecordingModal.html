@@ -1,0 +1,24 @@
+<template>
+    <lightning-modal-header label={label}>
+        <p class="sub">{subtitle}</p>
+    </lightning-modal-header>
+    <lightning-modal-body>
+        <div class="frame-wrap">
+            <div class="loading" lwc:if={loading}>
+                <lightning-spinner alternative-text="Loading Dynamics 365" size="medium"></lightning-spinner>
+                <p>Loading the call from Dynamics 365 Contact Center…</p>
+            </div>
+            <iframe src={url} title={label} class="frame" onload={handleLoad}
+                allow="autoplay; clipboard-write; microphone"></iframe>
+        </div>
+    </lightning-modal-body>
+    <lightning-modal-footer>
+        <div class="footer">
+            <a class="newtab" href={url} target="_blank" rel="noopener">
+                <lightning-icon icon-name="utility:new_window" size="xx-small"></lightning-icon>
+                Open in a new tab
+            </a>
+            <lightning-button label="Close" onclick={handleClose}></lightning-button>
+        </div>
+    </lightning-modal-footer>
+</template>

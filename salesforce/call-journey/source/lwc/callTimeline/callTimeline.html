@@ -1,0 +1,60 @@
+<template>
+    <div class="card">
+        <div class="list-head" lwc:if={showListHeader}>
+            <span class="list-title">Call Timeline</span>
+            <span class="count-pill" lwc:if={hasCalls}>{callCountLabel}</span>
+            <lightning-button-icon icon-name="utility:refresh" variant="bare" alternative-text="Refresh" title="Refresh" onclick={handleRefresh} class="refresh"></lightning-button-icon>
+        </div>
+
+        <template lwc:if={hasCalls}>
+            <template for:each={calls} for:item="c">
+                <div key={c.id} class={c.wrapClass}>
+                    <div class="head">
+                        <div class="head-left">
+                            <div class="head-icon"><img src={c.headerIcon} alt="" width="20" height="20"/></div>
+                            <div>
+                                <div class="head-title">Inbound voice call</div>
+                                <div class="head-sub">{c.whenFull}</div>
+                            </div>
+                        </div>
+                        <div class="head-right">
+                            <a class="btn btn-primary" lwc:if={c.url} href={c.url} onclick={openRecording} data-id={c.id} title="Play the call recording and read the transcript">
+                                <img src={c.playIcon} alt="" width="16" height="16"/>Recording &amp; transcript
+                            </a>
+                            <a class="btn btn-secondary" lwc:if={showDetailsLink} href={c.recordUrl} onclick={openCall} data-id={c.id} title={c.name}>
+                                <img src={c.openIcon} alt="" width="16" height="16"/>Call details
+                            </a>
+                            <span class={c.statusClass}>{c.statusLabel}</span>
+                        </div>
+                    </div>
+
+                    <div class="journey">
+                        <template for:each={c.steps} for:item="s">
+                            <div key={s.key} class="journey-item">
+                                <div class={s.connClass} lwc:if={s.hasConnector}></div>
+                                <div class="step">
+                                    <div class={s.dotClass}><img src={s.icon} alt="" width="20" height="20"/></div>
+                                    <div class="step-label">{s.label}</div>
+                                    <div class="step-meta">{s.meta}</div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+
+                    <div class="stats">
+                        <div class="tile"><img src={c.timerIcon} alt="" width="20" height="20"/><div><div class="tile-label">Total duration</div><div class="tile-value">{c.total}</div></div></div>
+                        <div class="tile" lwc:if={c.talk}><img src={c.micIcon} alt="" width="20" height="20"/><div><div class="tile-label">Talk time</div><div class="tile-value">{c.talk}</div></div></div>
+                        <div class="tile" lwc:if={c.sentiment}><img src={c.sentimentIcon} alt="" width="20" height="20"/><div><div class="tile-label">Customer sentiment</div><div class="tile-value">{c.sentiment}</div></div></div>
+                        <div class="tile" lwc:if={c.phone}><img src={c.phoneIcon} alt="" width="20" height="20"/><div><div class="tile-label">Caller</div><div class="tile-value">{c.phone}</div></div></div>
+                    </div>
+                </div>
+            </template>
+        </template>
+
+        <template lwc:elseif={loaded}>
+            <div class="empty">
+                <p>No contact center calls linked to this record yet.</p>
+            </div>
+        </template>
+    </div>
+</template>

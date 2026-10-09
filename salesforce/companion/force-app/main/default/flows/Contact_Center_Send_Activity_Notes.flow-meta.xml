@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <actionCalls>
+        <name>Send_Notes</name>
+        <label>Send notes to workspace</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <actionName>ContactCenterService</actionName>
+        <actionType>apex</actionType>
+        <flowTransactionModel>CurrentTransaction</flowTransactionModel>
+        <inputParameters><name>operation</name><value><stringValue>setNotes</stringValue></value></inputParameters>
+        <inputParameters><name>contactId</name><value><elementReference>$Record.WhoId</elementReference></value></inputParameters>
+        <inputParameters><name>message</name><value><elementReference>NotesText</elementReference></value></inputParameters>
+        <nameSegment>ContactCenterService</nameSegment>
+    </actionCalls>
+    <apiVersion>62.0</apiVersion>
+    <description>When a representative logs a call or creates a task on a contact in a live conversation, copies the comments into the conversation notes in the Contact Center workspace.</description>
+    <environments>Default</environments>
+    <interviewLabel>Contact Center - Send activity notes {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Contact Center - Send activity notes</label>
+    <processMetadataValues><name>BuilderType</name><value><stringValue>LightningFlowBuilder</stringValue></value></processMetadataValues>
+    <processMetadataValues><name>CanvasMode</name><value><stringValue>AUTO_LAYOUT_CANVAS</stringValue></value></processMetadataValues>
+    <processMetadataValues><name>OriginBuilderType</name><value><stringValue>LightningFlowBuilder</stringValue></value></processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector><targetReference>Send_Notes</targetReference></connector>
+        <filterFormula>AND(LEFT({!$Record.WhoId}, 3) = &quot;003&quot;, ISBLANK({!$Record.Conversation_Id__c}), {!$Record.Sync_To_Workspace__c})</filterFormula>
+        <object>Task</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <textTemplates><name>NotesText</name><isViewedAsPlainText>true</isViewedAsPlainText><text>{!$Record.Subject}: {!$Record.Description}</text></textTemplates>
+</Flow>

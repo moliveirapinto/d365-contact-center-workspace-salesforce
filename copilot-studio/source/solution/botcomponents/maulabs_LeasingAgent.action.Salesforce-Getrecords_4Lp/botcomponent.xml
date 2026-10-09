@@ -1,0 +1,10 @@
+<botcomponent schemaname="maulabs_LeasingAgent.action.Salesforce-Getrecords_4Lp">
+  <componenttype>9</componenttype>
+  <iscustomizable>1</iscustomizable>
+  <name>Salesforce - Get records</name>
+  <parentbotid>
+    <schemaname>maulabs_LeasingAgent</schemaname>
+  </parentbotid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</botcomponent>

@@ -1,0 +1,165 @@
+<template>
+    <div class={rootClass}>
+        <div class="head">
+            <div class="title">
+                <lightning-icon icon-name="utility:apex_plugin" size="x-small" class="title-icon"></lightning-icon>
+                <span>{heading}</span>
+            </div>
+            <span class={transportClass}>{transportLabel}</span>
+        </div>
+        <div class="sub">
+            <span>Focused conversation: <b>{focusedLabel}</b></span>
+            <span>Instance: <b>{targetInstanceId}</b></span>
+        </div>
+
+        <div class="body">
+            <div class="col col-left">
+                <!-- Caller card -->
+                <section class="card caller">
+                    <div class="card-title">
+                        <lightning-icon icon-name="standard:contact" size="small"></lightning-icon>
+                        <span>Caller</span>
+                    </div>
+                    <template lwc:if={caller}>
+                        <div class="caller-name">{caller.name}</div>
+                        <div class="caller-meta">{caller.title}</div>
+                        <dl class="caller-grid">
+                            <dt>Account</dt><dd>{caller.accountName}</dd>
+                            <dt>Phone</dt><dd class="sensitive">{caller.displayPhone}</dd>
+                            <template lwc:if={caller.displayEmail}><dt>Email</dt><dd class="sensitive">{caller.displayEmail}</dd></template>
+                        </dl>
+                        <template lwc:if={caller.hasCases}>
+                            <div class="cases-title">Open cases</div>
+                            <template for:each={caller.cases} for:item="cs">
+                                <div key={cs.id} class="case-row">
+                                    <span class="case-num">{cs.caseNumber}</span>
+                                    <span class="case-subj">{cs.subject}</span>
+                                    <span class="case-pri">{cs.priority}</span>
+                                </div>
+                            </template>
+                        </template>
+                        <div class="caller-actions">
+                            <lightning-button label="Open contact" icon-name="utility:new_window" onclick={handleOpenCaller}></lightning-button>
+                        </div>
+                    </template>
+                    <template lwc:else>
+                        <div class="muted">{callerStatus}</div>
+                        <lightning-button class="identify" label="Identify caller" onclick={handleIdentify}></lightning-button>
+                    </template>
+                </section>
+
+                <!-- Methods -->
+                <section class="card">
+                    <div class="group-title">Presence</div>
+                    <div class="btns">
+                        <lightning-button label="getPresence" data-method="getPresence" onclick={handleMethod} disabled={busy}></lightning-button>
+                        <lightning-button label="getPresenceOptions" data-method="getPresenceOptions" onclick={handleMethod} disabled={busy}></lightning-button>
+                    </div>
+                    <template lwc:if={hasPresenceOptions}>
+                        <div class="inline">
+                            <lightning-combobox class="presence-pick" label="Presence" variant="label-hidden" value={selectedPresenceId} options={presenceOptions} onchange={handlePresencePick}></lightning-combobox>
+                            <lightning-button label="setPresence" variant="brand" data-method="setPresence" onclick={handleMethod} disabled={busy}></lightning-button>
+                        </div>
+                    </template>
+
+                    <div class="group-title">Conversation</div>
+                    <div class="btns">
+                        <lightning-button label="getAssignedConversationsList" data-method="getAssignedConversationsList" onclick={handleMethod} disabled={busy}></lightning-button>
+                        <lightning-button label="getFocusedConversationId" data-method="getFocusedConversationId" onclick={handleMethod} disabled={busy}></lightning-button>
+                        <lightning-button label="getConversationData" data-method="getConversationData" onclick={handleMethod} disabled={busy}></lightning-button>
+                        <lightning-button label="getTranscript" data-method="getTranscript" onclick={handleMethod} disabled={busy}></lightning-button>
+                        <lightning-button label="getCopilotSummary" data-method="getCopilotSummary" onclick={handleMethod} disabled={busy}></lightning-button>
+                        <lightning-button label="getConversationDataUsingFetchXML" data-method="getConversationDataUsingFetchXML" onclick={handleMethod} disabled={busy}></lightning-button>
+                    </div>
+
+                    <div class="group-title">Call controls</div>
+                    <div class="btns">
+                        <lightning-button label="Hold" icon-name="utility:pause" data-method="holdCall" onclick={handleMethod} disabled={busy}></lightning-button>
+                        <lightning-button label="Resume" icon-name="utility:play" data-method="resumeCall" onclick={handleMethod} disabled={busy}></lightning-button>
+                        <lightning-button label="Mute" icon-name="utility:muted" data-method="muteCall" onclick={handleMethod} disabled={busy}></lightning-button>
+                        <lightning-button label="Unmute" icon-name="utility:unmuted" data-method="unmuteCall" onclick={handleMethod} disabled={busy}></lightning-button>
+                    </div>
+
+                    <div class="group-title">Notes, activity and notifications</div>
+                    <lightning-textarea class="notes" label="Notes" variant="label-hidden" value={notesText} onchange={handleNotesChange}></lightning-textarea>
+                    <div class="btns">
+                        <lightning-button label="setNotes" data-method="setNotes" onclick={handleMethod} disabled={busy}></lightning-button>
+                        <lightning-button label="logActivity" data-method="logActivity" onclick={handleMethod} disabled={busy}></lightning-button>
+                        <lightning-button label="updateCustomerContext" data-method="updateCustomerContext" onclick={handleMethod} disabled={busy}></lightning-button>
+                        <lightning-button label="addNewNotification" data-method="addNewNotification" onclick={handleMethod} disabled={busy}></lightning-button>
+                    </div>
+
+                    <div class="group-title">Agent, queues and SLA</div>
+                    <div class="btns">
+                        <lightning-button label="getAgentCapabilities" data-method="getAgentCapabilities" onclick={handleMethod} disabled={busy}></lightning-button>
+                        <lightning-button label="getAvailableQueues" data-method="getAvailableQueues" onclick={handleMethod} disabled={busy}></lightning-button>
+                        <lightning-button label="getSlaStatus" data-method="getSlaStatus" onclick={handleMethod} disabled={busy}></lightning-button>
+                    </div>
+
+                    <div class="group-title">Dataverse and Voice</div>
+                    <div class="btns">
+                        <lightning-button label="retrieveRecord" data-method="retrieveRecord" onclick={handleMethod} disabled={busy}></lightning-button>
+                        <lightning-button label="retrieveMultipleRecords" data-method="retrieveMultipleRecords" onclick={handleMethod} disabled={busy}></lightning-button>
+                        <lightning-button label="voice.startRecording" data-method="voiceStandalone" onclick={handleMethod} disabled={busy}></lightning-button>
+                    </div>
+                </section>
+            </div>
+
+            <div class="col col-right">
+                <!-- Response -->
+                <section class="card response">
+                    <div class="card-title">
+                        <span>Response</span>
+                        <template lwc:if={hasResult}><span class={statusClass}>{lastStatus}</span></template>
+                    </div>
+                    <template lwc:if={hasResult}>
+                        <div class="code">{lastCode}</div>
+                        <div class="transport">via {lastTransport}</div>
+                        <pre class="result">{lastResult}</pre>
+                    </template>
+                    <template lwc:else>
+                        <div class="muted">Pick a method to call it against the live workspace.</div>
+                    </template>
+                </section>
+
+                <!-- Event log -->
+                <section class="card events">
+                    <div class="card-title">
+                        <span>Event log</span>
+                        <lightning-button-icon icon-name="utility:clear" size="small" variant="bare" alternative-text="Clear log" onclick={handleClearLog}></lightning-button-icon>
+                    </div>
+                    <template lwc:if={hasLog}>
+                        <ul class="log">
+                            <template for:each={log} for:item="e">
+                                <li key={e.id} class="log-row">
+                                    <span class="log-time">{e.time}</span>
+                                    <span class={e.badgeClass}>{e.source}</span>
+                                    <span class="log-label">{e.label}</span>
+                                    <div class="log-detail">{e.detail}</div>
+                                </li>
+                            </template>
+                        </ul>
+                    </template>
+                    <template lwc:else>
+                        <div class="muted">Waiting for workspace events…</div>
+                    </template>
+                </section>
+
+                <!-- Handlers -->
+                <template lwc:if={hasHandlers}>
+                    <section class="card handlers">
+                        <div class="card-title"><span>Event handlers (removeEventHandlerById)</span></div>
+                        <div class="handler-grid">
+                            <template for:each={handlerRows} for:item="h">
+                                <div key={h.handlerId} class={h.rowClass}>
+                                    <span class="handler-name">{h.code}</span>
+                                    <lightning-button label={h.buttonLabel} variant={h.variant} data-id={h.handlerId} onclick={handleRemoveHandler} disabled={h.unavailable}></lightning-button>
+                                </div>
+                            </template>
+                        </div>
+                    </section>
+                </template>
+            </div>
+        </div>
+    </div>
+</template>

@@ -1,0 +1,11 @@
+<botcomponent schemaname="maulabs_LeasingAgent.topic.Knowledge_ZJyK3thpG6raPjzQHhsm1">
+  <componenttype>16</componenttype>
+  <description>This knowledge source answers questions found in the following Salesforce items: Knowledge</description>
+  <iscustomizable>1</iscustomizable>
+  <name>Knowledge</name>
+  <parentbotid>
+    <schemaname>maulabs_LeasingAgent</schemaname>
+  </parentbotid>
+  <statecode>0</statecode>
+  <statuscode>1</statuscode>
+</botcomponent>

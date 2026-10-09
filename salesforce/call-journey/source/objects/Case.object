@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <compactLayouts>
+        <fullName>D365CC_Case_Highlights</fullName>
+        <fields>Subject</fields>
+        <fields>Priority</fields>
+        <fields>Status</fields>
+        <fields>CaseNumber</fields>
+        <fields>D365_Call_Recording__c</fields>
+        <label>Case Highlights with Call Recording</label>
+    </compactLayouts>
+    <fields>
+        <fullName>D365_Call_Recording__c</fullName>
+        <externalId>false</externalId>
+        <formula>IF(OR(ISBLANK(D365_Conversation_Id__c), ISBLANK($Setup.D365_Contact_Center_Settings__c.Org_Url__c)), &quot;&quot;, HYPERLINK(IF(RIGHT($Setup.D365_Contact_Center_Settings__c.Org_Url__c, 1) = &quot;/&quot;, LEFT($Setup.D365_Contact_Center_Settings__c.Org_Url__c, LEN($Setup.D365_Contact_Center_Settings__c.Org_Url__c) - 1), $Setup.D365_Contact_Center_Settings__c.Org_Url__c) &amp; &quot;/main.aspx?&quot; &amp; IF(ISBLANK($Setup.D365_Contact_Center_Settings__c.App_Id__c), &quot;&quot;, &quot;appid=&quot; &amp; $Setup.D365_Contact_Center_Settings__c.App_Id__c &amp; &quot;&amp;&quot;) &amp; &quot;pagetype=entityrecord&amp;etn=msdyn_ocliveworkitem&amp;id=&quot; &amp; D365_Conversation_Id__c, &quot;Open call recording &amp; transcript&quot;, &quot;_blank&quot;))</formula>
+        <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+        <inlineHelpText>Opens the Dynamics 365 Contact Center conversation: recording, transcript, AI summary and quality evaluation.</inlineHelpText>
+        <label>Call Recording &amp; Transcript</label>
+        <required>false</required>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+    <fields>
+        <fullName>D365_Conversation_Id__c</fullName>
+        <description>Dynamics 365 Contact Center conversation (msdyn_ocliveworkitem) ID, written by the Copilot Studio IVR agent when it creates the case.</description>
+        <externalId>true</externalId>
+        <inlineHelpText>Set automatically by the IVR when the call escalates.</inlineHelpText>
+        <label>D365 Conversation ID</label>
+        <length>40</length>
+        <required>false</required>
+        <trackFeedHistory>false</trackFeedHistory>
+        <trackHistory>false</trackHistory>
+        <trackTrending>false</trackTrending>
+        <type>Text</type>
+        <unique>false</unique>
+    </fields>
+</CustomObject>

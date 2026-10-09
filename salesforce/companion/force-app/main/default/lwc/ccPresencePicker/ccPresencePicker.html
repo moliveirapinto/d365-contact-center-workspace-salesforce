@@ -1,0 +1,34 @@
+<template>
+    <div class="slds-p-around_x-small">
+        <template lwc:if={loading}>
+            <lightning-spinner alternative-text="Loading contact center status" size="small"></lightning-spinner>
+        </template>
+        <template lwc:elseif={error}>
+            <div class="slds-text-color_error slds-m-bottom_small">{error}</div>
+            <lightning-button label="Try again" onclick={load}></lightning-button>
+        </template>
+        <template lwc:else>
+            <p class="slds-text-body_regular slds-m-bottom_small">Current status: <strong>{current}</strong></p>
+            <div class="slds-grid slds-gutters_x-small slds-grid_vertical-align-end slds-m-bottom_medium">
+                <div class="slds-col slds-grow">
+                    <lightning-combobox label="New status" value={selected} options={options} onchange={handlePick}></lightning-combobox>
+                </div>
+                <div class="slds-col slds-grow-none">
+                    <lightning-button variant="brand" label="Set status" onclick={handleSet} disabled={setDisabled}></lightning-button>
+                </div>
+            </div>
+            <p class="slds-text-title_caps slds-m-bottom_xx-small">You can handle</p>
+            <p class="slds-m-bottom_medium">{capabilities}</p>
+            <template lwc:if={hasQueues}>
+                <p class="slds-text-title_caps slds-m-bottom_xx-small">Your queues</p>
+                <ul class="slds-list_dotted slds-m-bottom_xx-small">
+                    <template for:each={queues} for:item="q">
+                        <li key={q.key}>{q.name} <span class="slds-text-color_weak">({q.type})</span></li>
+                    </template>
+                </ul>
+                <p class="slds-text-color_weak slds-text-body_small slds-m-bottom_medium">{queueCaption}</p>
+            </template>
+            <lightning-input type="toggle" label="Show workspace notifications as Salesforce toasts" checked={mirror} onchange={handleMirror} message-toggle-active="On" message-toggle-inactive="Off"></lightning-input>
+        </template>
+    </div>
+</template>

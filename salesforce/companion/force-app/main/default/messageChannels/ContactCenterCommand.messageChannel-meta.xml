@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningMessageChannel xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Contact Center demo ContactCenterCommand</description>
+    <isExposed>true</isExposed>
+    <lightningMessageFields>
+        <fieldName>requestId</fieldName>
+    </lightningMessageFields>
+    <lightningMessageFields>
+        <fieldName>operation</fieldName>
+    </lightningMessageFields>
+    <lightningMessageFields>
+        <fieldName>payload</fieldName>
+    </lightningMessageFields>
+    <masterLabel>ContactCenterCommand</masterLabel>
+</LightningMessageChannel>
+

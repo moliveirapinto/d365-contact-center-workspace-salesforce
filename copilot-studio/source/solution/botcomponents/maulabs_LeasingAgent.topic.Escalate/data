@@ -1,0 +1,383 @@
+kind: AdaptiveDialog
+startBehavior: CancelOtherTopics
+inputs:
+  - kind: AutomaticTaskInput
+    propertyName: CaseSubject
+    description: |-
+      A short, customer-friendly title for this service case, written in plain business English, maximum 80 characters.
+      Describe what the caller actually needs, for example "Question about lease-end return options" or "Dispute over a late payment fee".
+      Never mention transfers, escalation, specialists, agents, IVR, bots, systems, tools, phone numbers, or conversation IDs.
+    shouldPromptUser: false
+
+  - kind: AutomaticTaskInput
+    propertyName: CaseSummary
+    description: |-
+      A concise plain-English summary of this conversation for the person who will take the call, written as 2 to 4 natural sentences.
+      Cover what the caller asked about, the details they gave such as vehicle, account, amounts or dates, what was already explained to them, and what still needs to be resolved.
+      Write it the way a helpful colleague would write a handover note.
+      Never include phone numbers, conversation IDs, tool names, technical terms, or any mention of transfer or escalation mechanics.
+    shouldPromptUser: false
+
+beginDialog:
+  kind: OnEscalate
+  id: main
+  intent:
+    displayName: Escalate
+    includeInOnSelectIntent: false
+    triggerQueries:
+      - Talk to agent
+      - Talk to a person
+      - Talk to someone
+      - Call back
+      - Call customer service
+      - Call me please
+      - Call support
+      - Call technical support
+      - Can an agent call me
+      - Can I call
+      - Can I get in touch with someone else
+      - Can I get real agent support
+      - Can I get transferred to a person to call
+      - Can I have a call in number Or can I be called
+      - Can I have a representative call me
+      - Can I schedule a call
+      - Can I speak to a representative
+      - Can I talk to a human
+      - Can I talk to a human assistant
+      - Can someone call me
+      - Chat with a human
+      - Chat with a representative
+      - Chat with agent
+      - Chat with someone please
+      - Connect me to a live agent
+      - Connect me to a person
+      - Could some one contact me by phone
+      - Customer agent
+      - Customer representative
+      - Customer service
+      - I need a manager to contact me
+      - I need customer service
+      - I need help from a person
+      - I need to speak with a live argent
+      - I need to talk to a specialist please
+      - I want to talk to customer service
+      - I want to proceed with live support
+      - I want to speak with a consultant
+      - I want to speak with a live tech
+      - I would like to speak with an associate
+      - I would like to talk to a technician
+      - Talk with tech support member
+
+  actions:
+    - kind: SendActivity
+      id: sendActivity_escalationHold
+      activity:
+        text:
+          - One moment please. I'm recording your service request before I connect you.
+        speak:
+          - One moment please. I'm recording your service request before I connect you.
+
+    - kind: SetVariable
+      id: setVariable_callerLast10
+      variable: Topic.CallerLast10
+      value: =Right(Substitute(Substitute(Substitute(Substitute(Substitute(Text(System.Activity.From.Name), "+", ""), " ", ""), "-", ""), "(", ""), ")", ""), 10)
+
+    - kind: InvokeConnectorAction
+      id: invokeConnectorAction_findCallerContact
+      input:
+        binding:
+          table: Contact
+          $filter: ="Phone_Last10__c eq '" & If(IsBlank(Topic.CallerLast10), "no-match", Topic.CallerLast10) & "' or Mobile_Last10__c eq '" & If(IsBlank(Topic.CallerLast10), "no-match", Topic.CallerLast10) & "'"
+          $top: 1
+
+      output:
+        kind: SingleVariableOutputBinding
+        variable: Topic.CallerContact
+
+      connectionReference: maulabs_LeasingAgent.shared_salesforce.5b55f9af76f04752b4d880676badaa93
+      connectionProperties:
+        mode: Maker
+
+      dynamicOutputSchema:
+        kind: Record
+        properties:
+          value:
+            displayName: value
+            type:
+              kind: Table
+              properties:
+                AccountId:
+                  displayName: Account ID
+                  type: String
+
+                Id:
+                  displayName: Contact ID
+                  type: String
+
+      operationId: GetItems
+    - kind: InvokeConnectorAction
+      id: invokeConnectorAction_createEscalationCase
+      input:
+        binding:
+          table: Case
+          item: '={Subject: Left(If(IsBlank(Topic.CaseSubject), "Caller asked to speak with a leasing specialist", Topic.CaseSubject), 255), Description: If(IsBlank(Topic.CaseSummary), Concatenate("The caller asked to speak with a specialist. They said: ", If(IsBlank(System.Activity.Text), "nothing further", System.Activity.Text)), Topic.CaseSummary), SuppliedPhone: Text(System.Activity.From.Name), Origin: "Phone", Status: "New", Priority: "Medium", D365_Conversation_Id__c: If(IsBlank(Global.msdyn_ConversationId), "", Text(Global.msdyn_ConversationId)), ContactId: If(IsBlank(First(Topic.CallerContact.value).Id), Blank(), First(Topic.CallerContact.value).Id), AccountId: If(IsBlank(First(Topic.CallerContact.value).AccountId), Blank(), First(Topic.CallerContact.value).AccountId)}'
+
+      output:
+        kind: SingleVariableOutputBinding
+        variable: Topic.EscalationCase
+
+      connectionReference: maulabs_LeasingAgent.shared_salesforce.5b55f9af76f04752b4d880676badaa93
+      connectionProperties:
+        mode: Maker
+
+      dynamicInputSchema:
+        properties:
+          item:
+            displayName: Record
+            description: Record
+            isRequired: true
+            order: 1
+            type:
+              kind: Record
+              properties:
+                Description:
+                  displayName: Description
+                  order: 18
+                  type: String
+
+                Origin:
+                  displayName: Case Origin
+                  order: 14
+                  type: String
+
+                Priority:
+                  displayName: Priority
+                  order: 17
+                  type: String
+
+                Status:
+                  displayName: Status
+                  order: 12
+                  type: String
+
+                Subject:
+                  displayName: Subject
+                  order: 16
+                  type: String
+
+                SuppliedPhone:
+                  displayName: Phone
+                  order: 9
+                  type: String
+
+                D365_Conversation_Id__c:
+                  displayName: D365 Conversation ID
+                  order: 40
+                  type: String
+
+
+                ContactId:
+
+                  displayName: Contact ID
+
+                  order: 41
+
+                  type: String
+
+
+                AccountId:
+
+                  displayName: Account ID
+
+                  order: 42
+
+                  type: String
+
+          table:
+            displayName: Salesforce Object Type
+            description: table name
+            isRequired: true
+            order: 0
+            type: String
+
+      dynamicOutputSchema:
+        kind: Record
+        properties:
+          CaseNumber:
+            displayName: Case Number
+            order: 3
+            type: String
+
+          Id:
+            displayName: Case ID
+            order: 0
+            type: String
+
+      operationId: PostItem_V2
+
+    - kind: ConditionGroup
+      id: conditionGroup_verifyEscalationCase
+      conditions:
+        - id: conditionItem_escalationCaseCreated
+          condition: =!IsBlank(Topic.EscalationCase.Id)
+          actions:
+            - kind: SendActivity
+              id: sendActivity_escalationCaseConfirmed
+              activity:
+                text:
+                  - I've created case {Topic.EscalationCase.CaseNumber}. I'll connect you with a specialist now.
+                speak:
+                  - I've created case {Topic.EscalationCase.CaseNumber}. I'll connect you with a specialist now.
+
+      elseActions:
+        - kind: InvokeConnectorAction
+          id: invokeConnectorAction_retryEscalationCase
+          input:
+            binding:
+              table: Case
+              item: '={Subject: Left(If(IsBlank(Topic.CaseSubject), "Caller asked to speak with a leasing specialist", Topic.CaseSubject), 255), Description: If(IsBlank(Topic.CaseSummary), Concatenate("The caller asked to speak with a specialist. They said: ", If(IsBlank(System.Activity.Text), "nothing further", System.Activity.Text)), Topic.CaseSummary), SuppliedPhone: Text(System.Activity.From.Name), Origin: "Phone", Status: "New", Priority: "Medium", D365_Conversation_Id__c: If(IsBlank(Global.msdyn_ConversationId), "", Text(Global.msdyn_ConversationId)), ContactId: If(IsBlank(First(Topic.CallerContact.value).Id), Blank(), First(Topic.CallerContact.value).Id), AccountId: If(IsBlank(First(Topic.CallerContact.value).AccountId), Blank(), First(Topic.CallerContact.value).AccountId)}'
+
+          output:
+            kind: SingleVariableOutputBinding
+            variable: Topic.EscalationCaseRetry
+
+          connectionReference: maulabs_LeasingAgent.shared_salesforce.5b55f9af76f04752b4d880676badaa93
+          connectionProperties:
+            mode: Maker
+
+          dynamicInputSchema:
+            properties:
+              item:
+                displayName: Record
+                description: Record
+                isRequired: true
+                order: 1
+                type:
+                  kind: Record
+                  properties:
+                    Description:
+                      displayName: Description
+                      order: 18
+                      type: String
+
+                    Origin:
+                      displayName: Case Origin
+                      order: 14
+                      type: String
+
+                    Priority:
+                      displayName: Priority
+                      order: 17
+                      type: String
+
+                    Status:
+                      displayName: Status
+                      order: 12
+                      type: String
+
+                    Subject:
+                      displayName: Subject
+                      order: 16
+                      type: String
+
+                    SuppliedPhone:
+                      displayName: Phone
+                      order: 9
+                      type: String
+
+                    D365_Conversation_Id__c:
+                      displayName: D365 Conversation ID
+                      order: 40
+                      type: String
+
+
+                    ContactId:
+
+                      displayName: Contact ID
+
+                      order: 41
+
+                      type: String
+
+
+                    AccountId:
+
+                      displayName: Account ID
+
+                      order: 42
+
+                      type: String
+
+              table:
+                displayName: Salesforce Object Type
+                description: table name
+                isRequired: true
+                order: 0
+                type: String
+
+          dynamicOutputSchema:
+            kind: Record
+            properties:
+              CaseNumber:
+                displayName: Case Number
+                order: 3
+                type: String
+
+              Id:
+                displayName: Case ID
+                order: 0
+                type: String
+
+          operationId: PostItem_V2
+
+        - kind: ConditionGroup
+          id: conditionGroup_verifyEscalationCaseRetry
+          conditions:
+            - id: conditionItem_escalationCaseRetryCreated
+              condition: =!IsBlank(Topic.EscalationCaseRetry.Id)
+              actions:
+                - kind: SendActivity
+                  id: sendActivity_escalationCaseRetryConfirmed
+                  activity:
+                    text:
+                      - I've created case {Topic.EscalationCaseRetry.CaseNumber}. I'll connect you with a specialist now.
+                    speak:
+                      - I've created case {Topic.EscalationCaseRetry.CaseNumber}. I'll connect you with a specialist now.
+
+          elseActions:
+            - kind: SendActivity
+              id: sendActivity_escalationCaseFailed
+              activity:
+                text:
+                  - I wasn't able to record your service request, but I won't leave you without help. I'll connect you with a specialist now.
+                speak:
+                  - I wasn't able to record your service request, but I won't leave you without help. I'll connect you with a specialist now.
+
+    - kind: TransferConversationV2
+      id: transferConversationV2_66jvJ7
+      transferType:
+        kind: TransferToAgent
+        messageToAgent: Transferred from main IVR
+        context:
+          kind: AutomaticTransferContext
+
+inputType:
+  properties:
+    CaseSubject:
+      displayName: CaseSubject
+      description: |-
+        A short, customer-friendly title for this service case, written in plain business English, maximum 80 characters.
+        Describe what the caller actually needs, for example "Question about lease-end return options" or "Dispute over a late payment fee".
+        Never mention transfers, escalation, specialists, agents, IVR, bots, systems, tools, phone numbers, or conversation IDs.
+      type: String
+
+    CaseSummary:
+      displayName: CaseSummary
+      description: |-
+        A concise plain-English summary of this conversation for the person who will take the call, written as 2 to 4 natural sentences.
+        Cover what the caller asked about, the details they gave such as vehicle, account, amounts or dates, what was already explained to them, and what still needs to be resolved.
+        Write it the way a helpful colleague would write a handover note.
+        Never include phone numbers, conversation IDs, tool names, technical terms, or any mention of transfer or escalation mechanics.
+      type: String
+
+outputType: {}

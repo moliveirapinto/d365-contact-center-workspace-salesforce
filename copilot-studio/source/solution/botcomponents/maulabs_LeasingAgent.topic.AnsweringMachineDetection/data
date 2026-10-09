@@ -1,0 +1,15 @@
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnAnsweringMachineDetected
+  id: main
+  actions:
+    - kind: SendActivity
+      id: sendActivity_C8pKOo
+      activity:
+        text:
+          - Hello, {System.Bot.Name} is trying to reach out to you.
+        speak:
+          - Hello, {System.Bot.Name} is trying to reach out to you.
+
+    - kind: EndConversation
+      id: Rgrz4i

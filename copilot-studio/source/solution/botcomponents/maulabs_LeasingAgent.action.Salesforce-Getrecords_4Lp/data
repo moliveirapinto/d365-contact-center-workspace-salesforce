@@ -1,0 +1,132 @@
+kind: TaskDialog
+inputs:
+  - kind: ManualTaskInput
+    propertyName: table
+    value: KnowledgeArticle
+
+modelDisplayName: Get knowledge articles
+modelDescription: Check the knowledge articles available and read out loud.
+outputs:
+  - propertyName: value
+    name: value
+    description: List of Items
+
+action:
+  kind: InvokeConnectorTaskAction
+  connectionReference: maulabs_LeasingAgent.shared_salesforce.5b55f9af76f04752b4d880676badaa93
+  connectionProperties:
+    mode: Maker
+
+  operationId: GetItems
+  dynamicOutputSchema:
+    kind: Record
+    properties:
+      value:
+        description: List of Items
+        order: 0
+        type:
+          kind: Table
+          properties:
+            ArchivedById:
+              displayName: User ID
+              visibility: Advanced
+              order: 9
+              type: String
+
+            ArchivedDate:
+              displayName: Archived Date
+              visibility: Advanced
+              order: 8
+              type: DateTime
+
+            ArticleNumber:
+              displayName: Article Number
+              visibility: Advanced
+              order: 7
+              type: String
+
+            CaseAssociationCount:
+              displayName: Case Association Count
+              visibility: Advanced
+              order: 12
+              type: Number
+
+            CreatedById:
+              displayName: Created By ID
+              visibility: Advanced
+              order: 3
+              type: String
+
+            CreatedDate:
+              displayName: Created Date
+              visibility: Advanced
+              order: 2
+              type: DateTime
+
+            FirstPublishedDate:
+              displayName: First Published Date
+              visibility: Advanced
+              order: 10
+              type: DateTime
+
+            Id:
+              displayName: Knowledge Article ID
+              visibility: Advanced
+              order: 0
+              type: String
+
+            IsDeleted:
+              displayName: Is Deleted
+              visibility: Advanced
+              order: 1
+              type: Boolean
+
+            LastModifiedById:
+              displayName: Last Modified By ID
+              visibility: Advanced
+              order: 5
+              type: String
+
+            LastModifiedDate:
+              displayName: Last Modified Date
+              visibility: Advanced
+              order: 4
+              type: DateTime
+
+            LastPublishedDate:
+              displayName: Last Published Date
+              visibility: Advanced
+              order: 11
+              type: DateTime
+
+            LastReferencedDate:
+              displayName: Last Referenced Date
+              visibility: Advanced
+              order: 14
+              type: DateTime
+
+            LastViewedDate:
+              displayName: Last Viewed Date
+              visibility: Advanced
+              order: 13
+              type: DateTime
+
+            MigratedToFromArticle:
+              displayName: Mapping info between old Article and migrated Article
+              visibility: Advanced
+              order: 15
+              type: String
+
+            SystemModstamp:
+              displayName: System Modstamp
+              visibility: Advanced
+              order: 6
+              type: DateTime
+
+            TotalViewCount:
+              displayName: Total View Count
+              visibility: Advanced
+              order: 16
+              type: Number
+
+outputMode: All

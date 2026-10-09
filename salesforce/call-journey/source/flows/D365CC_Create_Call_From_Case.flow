@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <assignments>
+        <name>Ignore_Error</name>
+        <label>Ignore Error</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignmentItems>
+            <assignToReference>errorNote</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Flow.FaultMessage</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <decisions>
+        <name>Already_Exists</name>
+        <label>Already Exists?</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Create_Call</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>New call</defaultConnectorLabel>
+        <rules>
+            <name>Exists</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Existing_Call</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <label>Exists</label>
+        </rules>
+    </decisions>
+    <description>When the Copilot Studio IVR creates a case carrying a D365 conversation ID, create the matching Contact Center Call record. The time zone of the title comes from Setup > Custom Settings > D365 Contact Center Settings. Runs asynchronously after commit so it can never block or roll back case creation; skips if the call already exists.</description>
+    <formulas>
+        <name>fOffset</name>
+        <dataType>Number</dataType>
+        <scale>2</scale>
+        <expression>BLANKVALUE({!$Setup.D365_Contact_Center_Settings__c.Time_Zone_Offset__c}, 0)</expression>
+    </formulas>
+    <formulas>
+        <name>fDst</name>
+        <dataType>Number</dataType>
+        <scale>2</scale>
+        <expression>IF(UPPER(TRIM({!$Setup.D365_Contact_Center_Settings__c.Daylight_Saving_Rule__c})) = &quot;US&quot;,
+  IF(AND({!$Record.CreatedDate} &gt;= DATETIMEVALUE(TEXT((DATE(VALUE(LEFT(TEXT({!$Record.CreatedDate}), 4)),3,8) + MOD(8 - WEEKDAY(DATE(VALUE(LEFT(TEXT({!$Record.CreatedDate}), 4)),3,8)), 7))) &amp; &quot; 00:00:00&quot;) + (2 - {!fOffset}) / 24, {!$Record.CreatedDate} &lt; DATETIMEVALUE(TEXT((DATE(VALUE(LEFT(TEXT({!$Record.CreatedDate}), 4)),11,1) + MOD(8 - WEEKDAY(DATE(VALUE(LEFT(TEXT({!$Record.CreatedDate}), 4)),11,1)), 7))) &amp; &quot; 00:00:00&quot;) + (1 - {!fOffset}) / 24), 1, 0),
+  IF(UPPER(TRIM({!$Setup.D365_Contact_Center_Settings__c.Daylight_Saving_Rule__c})) = &quot;EU&quot;,
+    IF(AND({!$Record.CreatedDate} &gt;= DATETIMEVALUE(TEXT((DATE(VALUE(LEFT(TEXT({!$Record.CreatedDate}), 4)),3,31) - MOD(WEEKDAY(DATE(VALUE(LEFT(TEXT({!$Record.CreatedDate}), 4)),3,31)) - 1, 7))) &amp; &quot; 01:00:00&quot;), {!$Record.CreatedDate} &lt; DATETIMEVALUE(TEXT((DATE(VALUE(LEFT(TEXT({!$Record.CreatedDate}), 4)),10,31) - MOD(WEEKDAY(DATE(VALUE(LEFT(TEXT({!$Record.CreatedDate}), 4)),10,31)) - 1, 7))) &amp; &quot; 01:00:00&quot;)), 1, 0),
+    0))</expression>
+    </formulas>
+    <formulas>
+        <name>fLocal</name>
+        <dataType>DateTime</dataType>
+        <expression>{!$Record.CreatedDate} + ({!fOffset} + {!fDst}) / 24</expression>
+    </formulas>
+    <formulas>
+        <name>fLocalDate</name>
+        <dataType>Date</dataType>
+        <expression>DATE(VALUE(LEFT(TEXT({!fLocal}), 4)), VALUE(MID(TEXT({!fLocal}), 6, 2)), VALUE(MID(TEXT({!fLocal}), 9, 2)))</expression>
+    </formulas>
+    <formulas>
+        <name>fLabel</name>
+        <dataType>String</dataType>
+        <expression>IF(ISBLANK({!$Setup.D365_Contact_Center_Settings__c.Time_Zone_Label__c}), &quot;UTC&quot; &amp; IF({!fOffset} + {!fDst} = 0, &quot;&quot;, IF({!fOffset} + {!fDst} &gt; 0, &quot;+&quot;, &quot;&quot;) &amp; TEXT({!fOffset} + {!fDst})), {!$Setup.D365_Contact_Center_Settings__c.Time_Zone_Label__c})</expression>
+    </formulas>
+    <formulas>
+        <name>fTitle</name>
+        <dataType>String</dataType>
+        <expression>&quot;Phone call received on &quot; &amp;
+CASE(WEEKDAY({!fLocalDate}), 1, &quot;Sun&quot;, 2, &quot;Mon&quot;, 3, &quot;Tue&quot;, 4, &quot;Wed&quot;, 5, &quot;Thu&quot;, 6, &quot;Fri&quot;, &quot;Sat&quot;) &amp; &quot;, &quot; &amp;
+CASE(MONTH({!fLocalDate}), 1, &quot;Jan&quot;, 2, &quot;Feb&quot;, 3, &quot;Mar&quot;, 4, &quot;Apr&quot;, 5, &quot;May&quot;, 6, &quot;Jun&quot;, 7, &quot;Jul&quot;, 8, &quot;Aug&quot;, 9, &quot;Sep&quot;, 10, &quot;Oct&quot;, 11, &quot;Nov&quot;, &quot;Dec&quot;) &amp; &quot; &quot; &amp;
+TEXT(DAY({!fLocalDate})) &amp; &quot; · &quot; &amp;
+TEXT(IF(MOD(VALUE(MID(TEXT({!fLocal}), 12, 2)), 12) = 0, 12, MOD(VALUE(MID(TEXT({!fLocal}), 12, 2)), 12))) &amp; &quot;:&quot; &amp; MID(TEXT({!fLocal}), 15, 2) &amp;
+IF(VALUE(MID(TEXT({!fLocal}), 12, 2)) &lt; 12, &quot; AM&quot;, &quot; PM&quot;) &amp; &quot; &quot; &amp; {!fLabel}</expression>
+    </formulas>
+    <interviewLabel>D365CC Create Call {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>D365 Contact Center - Create Call from IVR case</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordCreates>
+        <name>Create_Call</name>
+        <label>Create Call</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <faultConnector>
+            <targetReference>Ignore_Error</targetReference>
+        </faultConnector>
+        <inputAssignments>
+            <field>Call_Received__c</field>
+            <value>
+                <elementReference>$Record.CreatedDate</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Caller_Phone__c</field>
+            <value>
+                <elementReference>$Record.SuppliedPhone</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Case__c</field>
+            <value>
+                <elementReference>$Record.Id</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Channel__c</field>
+            <value>
+                <stringValue>Voice call</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Contact__c</field>
+            <value>
+                <elementReference>$Record.ContactId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Conversation_Id__c</field>
+            <value>
+                <elementReference>$Record.D365_Conversation_Id__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Direction__c</field>
+            <value>
+                <stringValue>Inbound</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Handled_By_Virtual_Agent__c</field>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Name</field>
+            <value>
+                <elementReference>fTitle</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Status__c</field>
+            <value>
+                <stringValue>In progress</stringValue>
+            </value>
+        </inputAssignments>
+        <object>Contact_Center_Call__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordCreates>
+    <recordLookups>
+        <name>Get_Existing_Call</name>
+        <label>Get Existing Call</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Already_Exists</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Ignore_Error</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Conversation_Id__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.D365_Conversation_Id__c</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Contact_Center_Call__c</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>D365_Conversation_Id__c</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <object>Case</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <scheduledPaths>
+            <connector>
+                <targetReference>Get_Existing_Call</targetReference>
+            </connector>
+            <pathType>AsyncAfterCommit</pathType>
+        </scheduledPaths>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+    <variables>
+        <name>errorNote</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

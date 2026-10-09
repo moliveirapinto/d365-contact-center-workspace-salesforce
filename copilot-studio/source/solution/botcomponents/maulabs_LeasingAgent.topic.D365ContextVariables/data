@@ -1,0 +1,12 @@
+kind: AdaptiveDialog
+beginDialog:
+  kind: OnRedirect
+  id: main
+  actions:
+    - kind: SetVariable
+      id: setVariable_d365ConversationIdType
+      variable: Global.msdyn_ConversationId
+      value: =""
+
+inputType: {}
+outputType: {}

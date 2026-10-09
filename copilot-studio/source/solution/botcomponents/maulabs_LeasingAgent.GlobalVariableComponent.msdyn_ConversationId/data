@@ -1,0 +1,6 @@
+kind: Variable
+name: msdyn_ConversationId
+scope: Conversation
+isExternalInitializationAllowed: true
+initializationTimeoutInMilliseconds: 0
+aIVisibility: Hidden

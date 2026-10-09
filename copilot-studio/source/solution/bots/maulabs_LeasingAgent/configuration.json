@@ -1,0 +1,48 @@
+{
+  "$kind": "BotConfiguration",
+  "channels": [
+    {
+      "$kind": "ChannelDefinition",
+      "id": "Telephony",
+      "channelId": "Telephony"
+    },
+    {
+      "$kind": "ChannelDefinition",
+      "id": "Omnichannel",
+      "channelId": "Omnichannel"
+    },
+    {
+      "$kind": "ChannelDefinition",
+      "id": "MsTeams",
+      "channelId": "MsTeams"
+    }
+  ],
+  "settings": {
+    "GenerativeActionsEnabled": true,
+    "TelephonyInitialized": true
+  },
+  "isTelephonyEnabled": true,
+  "isAgentConnectable": true,
+  "voiceProcessingMode": {
+    "$kind": "RealtimeVoiceProcessingMode"
+  },
+  "realtimeVoiceModel": {
+    "$kind": "VoiceAgentModelType",
+    "model": "GPT-Realtime"
+  },
+  "gPTSettings": {
+    "$kind": "GPTSettings",
+    "defaultSchemaName": "maulabs_LeasingAgent.gpt.default"
+  },
+  "aISettings": {
+    "$kind": "AISettings",
+    "useModelKnowledge": true,
+    "isFileAnalysisEnabled": true,
+    "isSemanticSearchEnabled": true,
+    "contentModeration": "Low",
+    "optInUseLatestModels": false
+  },
+  "recognizer": {
+    "$kind": "GenerativeAIRecognizer"
+  }
+}

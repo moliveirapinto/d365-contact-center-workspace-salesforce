@@ -1,0 +1,17 @@
+kind: AdaptiveDialog
+modelDescription: Use this everytime users ask about lease late payment options.
+beginDialog:
+  kind: OnRecognizedIntent
+  id: main
+  intent: {}
+  actions:
+    - kind: BeginDialog
+      id: lqWdtZ
+      input: {}
+      dialog: maulabs_LeasingAgent.action.Salesforce-Getrecords_4Lp
+      output:
+        binding:
+          value: Topic.value
+
+inputType: {}
+outputType: {}
