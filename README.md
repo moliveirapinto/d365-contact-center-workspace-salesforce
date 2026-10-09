@@ -58,8 +58,9 @@ salesforce/
   call-journey/   D365ContactCenter_CallJourney_Salesforce.zip (+ source)   48 components
   companion/      source for the bridge, quick actions, permission set, Task link, trusted URLs
 dynamics365/      D365ContactCenterSalesforceCallJourney_1_1_1_0.zip (+ web resource source)
+                  Apply-ConversationFormFix.ps1 (form fix script + CSP check)
 copilot-studio/   LeasingAgentSalesforce_1_0_0_0.zip (+ unpacked source and topic YAML)
-docs/             step-by-step guides
+docs/             step-by-step guides and screenshots
 ```
 
 ## Let an AI assistant install it for you
@@ -83,6 +84,7 @@ Files (do NOT unzip the zips):
   C) Dynamics 365 solution: dynamics365/D365ContactCenterSalesforceCallJourney_1_1_1_0.zip  (13,614 bytes)
   D) Copilot Studio solution: copilot-studio/LeasingAgentSalesforce_1_0_0_0.zip  (31,760 bytes)
   E) Copilot Studio topic: copilot-studio/source/d365-context-variables-topic.yaml
+  F) Dynamics 365 form fix script: dynamics365/Apply-ConversationFormFix.ps1
 Easiest is to clone the repository (git clone, or gh repo clone moliveirapinto/d365-contact-center-workspace-salesforce if it is private) and work from the clone. Read the README and the step guides first. If they and this prompt disagree, follow the repository and tell me.
 
 HOW TO WORK
@@ -167,7 +169,7 @@ START with PHASE 0.
 - No Open CTI: this workspace has no softphone or click-to-dial in Salesforce. Outbound calls use the workspace dialer.
 - Callers are matched to a Contact by **Phone or Mobile** (last 10 digits). D365 itself only uses Mobile/Account phone for its own matching.
 - Salesforce caches pages aggressively: hard-refresh (Ctrl+Shift+R) after deploying.
-- The recording pop-up needs the Conversation form fix and CSP settings in [Step 2](docs/2-install-dynamics365.md).
+- The recording pop-up needs the Conversation form fix (applied by the script `dynamics365/Apply-ConversationFormFix.ps1`) and, only if your environment enforces content security policy, the `frame-ancestors` entries. See [Step 2](docs/2-install-dynamics365.md).
 
 ## Troubleshooting and uninstall
 
